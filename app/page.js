@@ -29,7 +29,7 @@ export default function Home() {
       </div>
 
 	  <h1>Hello, kidney enthusiast.</h1>
-	  <h1><a href="https://test-auth-service.sail.codes/?projectId=18644fd0-6523-4aa4-a8ad-d106d787f3cc">Log in with SAIL test auth</a></h1>
+	  <h1><a href={process.env.AUTH_LOGIN_URL + "/?projectId=" + process.env.AUTH_PROJECTID}>Log in with SAIL test auth</a></h1>
       <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-full sm:before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full sm:after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
       </div>
 
