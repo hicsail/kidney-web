@@ -1,6 +1,18 @@
 import Image from "next/image";
+import { getCurrentUser } from "./actions.js";
 
-export default function Home() {
+export default async function Home() {
+	const user = await getCurrentUser();
+	console.log("USER: ", user);
+	function GreetingText() {
+		if (!user) {
+			return `Hello, kidney enthusiast.`;
+		} else if (user.fullname) {
+			return `Hello, ${user.fullname}`;
+		} else {
+			return `Hello, ${user.email}`;
+		}
+	}
 	return (
 		<main className="flex min-h-screen flex-col items-center justify-between p-24">
 			<div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
@@ -28,7 +40,7 @@ export default function Home() {
 				</div>
 			</div>
 
-			<h1>Hello, kidney enthusiast.</h1>
+			<h1>{GreetingText()}</h1>
 			<h1>
 				<a
 					href={

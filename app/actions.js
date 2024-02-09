@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 var jwt = require("jsonwebtoken");
 
 export async function getPublicKey() {
@@ -29,4 +30,29 @@ export async function validateAuthToken(token) {
 	}
 
 	return data;
+}
+
+export async function getCurrentUser() {
+	const sessionCookie = cookies().get("session");
+	if (sessionCookie === undefined) {
+		return null;
+	}
+	// One hopes the auth service validates the token when you make the "me" query, so probably don't need this line
+	//const tokendata = await validateAuthToken(sessionCookie.value);
+
+	// Using token, query auth service for user details.
+	// Awaiting response re: existence of "me" REST endpoint.
+	// Meanwhile, presumably have to query the auth "backend" using /graphql. Absurd!
+	// (The "frontend" now no longer exposes /graphql.)
+	// Maybe soon they will stick all the user data into the JWT; who knows.
+	const meResponse = await fetch(process.env.AUTH_BACKEND_URL + "/graphql", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: "Bearer " + sessionCookie.value,
+		},
+		body: JSON.stringify({ query: "{me {email fullname username}}" }),
+	});
+	const result = await meResponse.json();
+	return result.data.me;
 }
