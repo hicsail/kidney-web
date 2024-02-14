@@ -37,14 +37,9 @@ export async function getCurrentUser() {
   if (sessionCookie === undefined) {
     return null;
   }
-  // One hopes the auth service validates the token when you make the "me" query, so probably don't need this line
-  //const tokendata = await validateAuthToken(sessionCookie.value);
-
   // Using token, query auth service for user details.
-  // Awaiting response re: existence of "me" REST endpoint.
-  // Meanwhile, presumably have to query the auth "backend" using /graphql. Absurd!
-  // (The "frontend" now no longer exposes /graphql.)
-  // Maybe soon they will stick all the user data into the JWT; who knows.
+  // Note: Pass token to auth service w/o validating it; auth service should validate.
+  // Note: Auth service does not have a working "me" REST endpoint. So: use /graphql
   const meResponse = await fetch(process.env.AUTH_BACKEND_URL + "/graphql", {
     method: "POST",
     headers: {
@@ -54,5 +49,9 @@ export async function getCurrentUser() {
     body: JSON.stringify({ query: "{me {email fullname username}}" }),
   });
   const result = await meResponse.json();
-  return result.data.me;
+
+  // Auth service currently returns 403 Forbidden if the 'me' query is made with
+  // an admin user's token. Not sure if by design. At any rate, return null if
+  // auth service returns null.
+  return result.data?.me;
 }
