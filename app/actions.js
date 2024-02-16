@@ -50,8 +50,14 @@ export async function getCurrentUser() {
   });
   const result = await meResponse.json();
 
-  // Auth service currently returns 403 Forbidden if the 'me' query is made with
-  // an admin user's token. Not sure if by design. At any rate, return null if
-  // auth service returns null.
+  // This app only sets the session cookie if it passes validation,
+  // and if the cookie is valid, then auth service should not error.
+  // So this should not happen:
+  if (result.data === null) {
+    console.log(
+      `Session cookie was present and probably valid, but auth service 'me' query returned: ${result.errors[0].message}`
+    );
+  }
+  // At any rate, return null if auth service returns null.
   return result.data?.me;
 }

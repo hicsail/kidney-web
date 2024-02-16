@@ -19,7 +19,7 @@ export async function GET(request) {
   cookies().set("session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 7, // One week
+    maxAge: 60 * 60 * 18, // SAIL auth issues tokens for 18 hours
     path: "/",
   });
 
