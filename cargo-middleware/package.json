@@ -1,0 +1,21 @@
+{
+  "name": "cargo-middleware",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist",
+  "types": "dist",
+  "scripts": {
+    "start": "ts-node src/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.9.5",
+    "@aws-sdk/client-s3": "^3.287.0",
+    "cross-fetch": "^4.0.0"
+  }
+}

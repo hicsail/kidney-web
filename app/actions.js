@@ -32,6 +32,14 @@ export async function validateAuthToken(token) {
   return data;
 }
 
+export async function getCurrentToken() {
+  const sessionCookie = cookies().get("session");
+  if (sessionCookie === undefined) {
+    return null;
+  }
+  return sessionCookie.value;
+}
+
 export async function getCurrentUser() {
   const sessionCookie = cookies().get("session");
   if (sessionCookie === undefined) {
