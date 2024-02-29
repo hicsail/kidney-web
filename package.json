@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.515.0",
-    "@hicsail/cargo-middleware": "file:cargo-middleware",
     "jsonwebtoken": "^9.0.2",
     "next": "14.1.0",
     "react": "^18",

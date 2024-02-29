@@ -54,7 +54,9 @@ export async function getCurrentUser() {
       "Content-Type": "application/json",
       Authorization: "Bearer " + sessionCookie.value,
     },
-    body: JSON.stringify({ query: "{me {email fullname username}}" }),
+    body: JSON.stringify({
+      query: "{me {id projectId username fullname email role}}",
+    }),
   });
   const result = await meResponse.json();
 
@@ -63,7 +65,7 @@ export async function getCurrentUser() {
   // So this should not happen:
   if (result.data === null) {
     console.log(
-      `Session cookie was present and probably valid, but auth service 'me' query returned: ${result.errors[0].message}`
+      `Session cookie was present and probably valid, but auth service 'me' query returned: ${result.errors[0].message}`,
     );
   }
   // At any rate, return null if auth service returns null.
