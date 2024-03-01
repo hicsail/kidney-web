@@ -11,7 +11,11 @@ function SubmitButton({ text }) {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" aria-disabled={pending}>
+    <button
+      type="submit"
+      aria-disabled={pending}
+      className="px-4 py-1 rounded-full border border-black hover:text-white hover:bg-black"
+    >
       {text}
     </button>
   );
@@ -24,7 +28,10 @@ export function UploadFileForm() {
   );
   return (
     <form action={formAction}>
-      <label htmlFor="file">Choose file:</label>
+      <label htmlFor="file" className="text-lg font-semibold">
+        Upload files:
+      </label>
+      <br />
       <input type="file" id="file" name="file" multiple required />
       <SubmitButton text="Add" />
     </form>
