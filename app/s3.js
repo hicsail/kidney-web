@@ -40,17 +40,27 @@ export async function uploadFileFromForm(prevState, formData) {
   // NB: At least on S3, you don't need to create folders; folders are just bits of filepaths;
   // just create the file, and intermediate directories will get created.
 
-  // TODO: Upload actual file instead of text files from form data......
-  const resp = await client.send(
-    new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: `${userdir}/${formData.get("filename")}`,
-      Body: `${formData.get("contents")}`,
-    }),
-  );
+  let attemptCount = 0;
+  let successCount = 0;
+  // Text, image, zip archive OK; directories not OK.
+  for (const f of formData.getAll("file")) {
+    const resp = await client.send(
+      new PutObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: `${userdir}/${f["name"]}`,
+        Body: await f.arrayBuffer(),
+      }),
+    );
+    attemptCount += 1;
+    if (resp.$metadata.httpStatusCode == "200") {
+      successCount += 1;
+    }
+  }
   revalidatePath("/");
 
-  return { message: `${resp.$metadata.httpStatusCode}` };
+  return {
+    message: `${successCount} of ${attemptCount} files successfully uploaded.`,
+  };
 }
 
 // this server action is passed to useFormState and turns into a formAction

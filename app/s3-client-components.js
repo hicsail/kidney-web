@@ -24,10 +24,8 @@ export function UploadFileForm() {
   );
   return (
     <form action={formAction}>
-      <label htmlFor="filename">Filename</label>
-      <input type="text" id="filename" name="filename" required />
-      <label htmlFor="contents">Contents</label>
-      <input type="text" id="contents" name="contents" required />
+      <label htmlFor="file">Choose file:</label>
+      <input type="file" id="file" name="file" multiple required />
       <SubmitButton text="Add" />
     </form>
   );
