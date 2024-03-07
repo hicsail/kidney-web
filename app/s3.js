@@ -1,5 +1,7 @@
 "use server";
 
+// The user id is used as the name of the user's subdirectory
+
 import {
   S3Client,
   ListObjectsV2Command,
@@ -10,10 +12,6 @@ import {
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./actions.js";
 
-const user = await getCurrentUser();
-// The user id is used as the name of the user's subdirectory
-const userdir = user?.id;
-
 const client = new S3Client({
   credentials: {
     accessKeyId: process.env.S3_ACCESS_KEY,
@@ -23,6 +21,12 @@ const client = new S3Client({
 });
 
 export async function ListUserDirContents() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return null;
+  }
+  const userdir = user.id;
+
   const objects = await client.send(
     new ListObjectsV2Command({
       Bucket: process.env.S3_BUCKET_NAME,
@@ -37,6 +41,13 @@ export async function ListUserDirContents() {
 
 // this server action is passed to useFormState and turns into a formAction
 export async function uploadFileFromForm(prevState, formData) {
+  const user = await getCurrentUser();
+  if (!user) {
+    console.log("Fishy activity detected");
+    return { message: 400 };
+  }
+  const userdir = user.id;
+
   // NB: At least on S3, you don't need to create folders; folders are just bits of filepaths;
   // just create the file, and intermediate directories will get created.
 
@@ -65,6 +76,13 @@ export async function uploadFileFromForm(prevState, formData) {
 
 // this server action is passed to useFormState and turns into a formAction
 export async function deleteFileFromForm(prevState, formData) {
+  const user = await getCurrentUser();
+  if (!user) {
+    console.log("Fishy activity detected");
+    return { message: 400 };
+  }
+  const userdir = user.id;
+
   // Check for bad behavior. NB: Putting ".." in filepath does not work either
   if (!formData.get("filename").startsWith(userdir)) {
     console.log("Fishy activity detected");
