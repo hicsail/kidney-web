@@ -9,6 +9,7 @@ export async function runGBMPrediction(prevState, formData) {
   return {
     message: "Hello world, here's a fake prediction",
     srcfile: formData.get("filename"),
+    pixelsize: formData.get("pixelsize"),
     gbmwidth: 42,
     mask: null,
   };

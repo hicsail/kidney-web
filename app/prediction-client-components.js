@@ -45,6 +45,7 @@ export function GBMMeasurementInterface({ user, files }) {
   const [predictionResult, formAction] = useFormState(runGBMPrediction, {
     message: null,
     srcfile: null,
+    pixelsize: null,
     gbmwidth: null,
     mask: null,
   });
@@ -97,7 +98,11 @@ export function GBMMeasurementInterface({ user, files }) {
       <div>
         <RunPredictForm />
         {predictionResult.message && predictionResult.message}
-        <p>Prediction source file: {removeUserdirPrefix(predictionResult.srcfile) || "n/a"}</p>
+        <p>
+          Prediction source file:{" "}
+          {removeUserdirPrefix(predictionResult.srcfile) || "n/a"}
+        </p>
+        <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
         <p>Predicted GBM width: {predictionResult.gbmwidth || "n/a"}</p>
         <p>Predicted GBM mask: (Not Currently Implemented)</p>
       </div>
