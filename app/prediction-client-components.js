@@ -10,21 +10,20 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   return (
     <div className="flex flex-col space-y-5">
       <h1 className="text-lg font-semibold">Your files</h1>
-      <ul className="space-y-1">
+      <ul className="divide-y divide-slate-400">
         {files.length == 0
           ? "You have no uploaded files yet."
           : files.map((file) => (
-              <li key={file["Key"]}>
-                <div
-                  onClick={() => setCurrSelectedFile(file["Key"])}
-                  className={
-                    "flex flex-row items-center justify-between" +
-                    (file["Key"] == currSelectedFile ? " bg-blue-300" : "")
-                  }
-                >
-                  {removeUserdirPrefix(file["Key"])}
-                  <DeleteFileForm filename={file["Key"]} />
-                </div>
+              <li
+                key={file["Key"]}
+                onClick={() => setCurrSelectedFile(file["Key"])}
+                className={
+                  "flex flex-row py-1 px-1 items-center justify-between hover:bg-blue-100" +
+                  (file["Key"] == currSelectedFile ? " bg-blue-200" : "")
+                }
+              >
+                {removeUserdirPrefix(file["Key"])}
+                <DeleteFileForm filename={file["Key"]} />
               </li>
             ))}
       </ul>
