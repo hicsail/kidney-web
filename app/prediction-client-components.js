@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
+import { removeUserdirPrefix } from "@/app/utils.js";
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   return (
@@ -21,8 +22,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                     (file["Key"] == currSelectedFile ? " bg-blue-300" : "")
                   }
                 >
-                  {/*Parse away the userdir prefix*/}
-                  {file["Key"].split("/", 2)[1]}
+                  {removeUserdirPrefix(file["Key"])}
                   <DeleteFileForm filename={file["Key"]} />
                 </div>
               </li>
@@ -52,7 +52,11 @@ export function GBMMeasurementInterface({ user, files }) {
   function RunPredictForm() {
     return (
       <form action={formAction}>
-        <p>Current file: {currSelectedFile}</p>
+        {currSelectedFile ? (
+          <p>Current file: {removeUserdirPrefix(currSelectedFile)}</p>
+        ) : (
+          <p>Click on a file to run a prediction.</p>
+        )}
         <input
           type="hidden"
           name="filename"
@@ -93,7 +97,7 @@ export function GBMMeasurementInterface({ user, files }) {
       <div>
         <RunPredictForm />
         {predictionResult.message && predictionResult.message}
-        <p>Prediction source file: {predictionResult.srcfile || "n/a"}</p>
+        <p>Prediction source file: {removeUserdirPrefix(predictionResult.srcfile) || "n/a"}</p>
         <p>Predicted GBM width: {predictionResult.gbmwidth || "n/a"}</p>
         <p>Predicted GBM mask: (Not Currently Implemented)</p>
       </div>
