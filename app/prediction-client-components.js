@@ -53,6 +53,7 @@ export function GBMMeasurementInterface({ user, files }) {
   function RunPredictForm() {
     return (
       <form action={formAction}>
+        <h1 className="text-lg font-semibold">Run a prediction</h1>
         {currSelectedFile ? (
           <p>Current file: {removeUserdirPrefix(currSelectedFile)}</p>
         ) : (
@@ -85,18 +86,10 @@ export function GBMMeasurementInterface({ user, files }) {
       </button>
     );
   }
-
-  return (
-    <div className="flex flex-row">
+  function PredictionResult() {
+    return (
       <div>
-        <UserFiles
-          files={files}
-          currSelectedFile={currSelectedFile}
-          setCurrSelectedFile={setCurrSelectedFile}
-        />
-      </div>
-      <div>
-        <RunPredictForm />
+        <h1 className="text-lg font-semibold">Prediction result</h1>
         {predictionResult.message && predictionResult.message}
         <p>
           Prediction source file:{" "}
@@ -105,6 +98,22 @@ export function GBMMeasurementInterface({ user, files }) {
         <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
         <p>Predicted GBM width: {predictionResult.gbmwidth || "n/a"}</p>
         <p>Predicted GBM mask: (Not Currently Implemented)</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-row my-24 space-x-16">
+      <div>
+        <UserFiles
+          files={files}
+          currSelectedFile={currSelectedFile}
+          setCurrSelectedFile={setCurrSelectedFile}
+        />
+      </div>
+      <div className="space-y-4">
+        <RunPredictForm />
+        <PredictionResult />
       </div>
     </div>
   );
