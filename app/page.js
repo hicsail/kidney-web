@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { getCurrentUser } from "./actions.js";
-import { ListUserDirContents } from "./s3.js";
+import { getCurrentUser } from "@/app/actions.js";
+import { ListUserDirContents } from "@/app/s3.js";
 
 import { GBMMeasurementInterface } from "@/app/prediction-client-components.js";
 

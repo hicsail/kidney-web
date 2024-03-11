@@ -10,7 +10,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 import { revalidatePath } from "next/cache";
-import { getCurrentUser } from "./actions.js";
+import { getCurrentUser } from "@/app/actions.js";
 
 const client = new S3Client({
   credentials: {

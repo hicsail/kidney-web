@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
-import { uploadFileFromForm, deleteFileFromForm } from "./s3.js";
+import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
 
 const formInitialState = {
   message: null,
