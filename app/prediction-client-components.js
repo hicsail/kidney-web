@@ -80,7 +80,7 @@ export function GBMMeasurementInterface({ user, files }) {
         type="submit"
         aria-disabled={disabled}
         disabled={disabled}
-        className="px-4 py-1 rounded-full border border-black hover:text-white hover:bg-black"
+        className="px-4 py-1 rounded-full border border-black hover:text-white hover:bg-black disabled:border-slate-600 disabled:bg-slate-200 disabled:text-slate-600 disabled:hover:text-slate-600"
       >
         Predict
       </button>
