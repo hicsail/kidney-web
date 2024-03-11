@@ -2,7 +2,7 @@ import Image from "next/image";
 import { getCurrentUser } from "./actions.js";
 import { ListUserDirContents } from "./s3.js";
 
-import { UploadFileForm, DeleteFileForm } from "./s3-client-components.js";
+import { GBMMeasurementInterface } from "@/app/prediction-client-components.js";
 
 function Greeting({ user }) {
   if (!user) {
@@ -36,39 +36,14 @@ function Greeting({ user }) {
   }
 }
 
-async function UserFiles({ user }) {
-  if (!user) {
-    return <p>Log in to view your files.</p>;
-  }
-  const files = await ListUserDirContents(user);
-
-  return (
-    <div className="flex flex-col space-y-5">
-      <h1 className="text-lg font-semibold">Your files</h1>
-      <ul className="space-y-1">
-        {files.length == 0
-          ? "You have no uploaded files yet."
-          : files.map((file) => (
-              <li key={file["Key"]}>
-                <div className="flex flex-row items-center justify-between">
-                  {/*Parse away the userdir prefix*/}
-                  {file["Key"].split("/", 2)[1]}
-                  <DeleteFileForm filename={file["Key"]} />
-                </div>
-              </li>
-            ))}
-      </ul>
-      <UploadFileForm />
-    </div>
-  );
-}
-
 export default async function Home() {
   const user = await getCurrentUser();
+  const files = user ? await ListUserDirContents() : null;
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <Greeting user={user} />
-      <UserFiles user={user} />
+      <GBMMeasurementInterface user={user} files={files} />
     </main>
   );
 }
