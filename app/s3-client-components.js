@@ -14,7 +14,7 @@ function SubmitButton({ text }) {
     <button
       type="submit"
       aria-disabled={pending}
-      className="px-4 py-1 rounded-full border border-black hover:text-white hover:bg-black"
+      className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600"
     >
       {text}
     </button>
