@@ -4,6 +4,7 @@
 
 import {
   S3Client,
+  GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   DeleteObjectCommand,
@@ -19,6 +20,23 @@ const client = new S3Client({
   },
   region: process.env.S3_REGION,
 });
+
+export async function GetUserObject(key) {
+  const user = await getCurrentUser();
+  if (!user || !key.startsWith(user.id)) {
+    console.log("Fishy activity detected");
+    return { message: 400 };
+  }
+
+  const resp = await client.send(
+    new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET_NAME,
+      Key: key,
+    }),
+  );
+  const bytes = await resp.Body.transformToByteArray();
+  return bytes;
+}
 
 export async function ListUserDirContents() {
   const user = await getCurrentUser();

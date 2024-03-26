@@ -45,8 +45,12 @@ export function GBMMeasurementInterface({ user, files }) {
     message: null,
     srcfile: null,
     pixelsize: null,
-    gbmwidth: null,
-    mask: null,
+    skeleton_length: null,
+    area: null,
+    GBM_mean_width: null,
+    FP_num: null,
+    FP_mean_width: null,
+    measurement_mask_filepath: null,
   });
 
   function RunPredictForm() {
@@ -81,7 +85,7 @@ export function GBMMeasurementInterface({ user, files }) {
         disabled={disabled}
         className="px-4 py-1 rounded-full border border-black bg-slate-200 hover:text-white hover:bg-slate-600 disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500"
       >
-        Predict
+        {pending ? <i>Pending...</i> : <>Predict</>}
       </button>
     );
   }
@@ -89,14 +93,26 @@ export function GBMMeasurementInterface({ user, files }) {
     return (
       <div>
         <h1 className="text-lg font-semibold">Prediction result</h1>
-        {predictionResult.message && predictionResult.message}
+        <p>Message: {predictionResult.message || "n/a"}</p>
         <p>
           Prediction source file:{" "}
           {removeUserdirPrefix(predictionResult.srcfile) || "n/a"}
         </p>
         <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
-        <p>Predicted GBM width: {predictionResult.gbmwidth || "n/a"}</p>
-        <p>Predicted GBM mask: (Not Currently Implemented)</p>
+        <p>Skeleton length: {predictionResult.skeleton_length || "n/a"} nm</p>
+        <p>Area: {predictionResult.area || "n/a"} nm sq</p>
+        <p>GBM mean width: {predictionResult.GBM_mean_width || "n/a"}</p>
+        <p>FP number: {predictionResult["FP_num"] || "n/a"}</p>
+        <p>FP mean width: {predictionResult.FP_mean_width || "n/a"}</p>
+
+        <p>GBM mask:</p>
+        {/*TODO: configurable hostname */}
+        {/*TODO: change the extension into png*/}
+        {/*TODO: only render image if... it exists/there is a prediction result...*/}
+        {/*TODO: Also save rest of prediction result*/}
+        <img
+          src={`http://localhost:3000/predictionimages/masks/${removeUserdirPrefix(currSelectedFile)}`}
+        />
       </div>
     );
   }

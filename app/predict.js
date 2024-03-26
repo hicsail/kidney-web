@@ -1,16 +1,27 @@
 "use server";
 
+import { getCurrentUser } from "@/app/actions.js";
+
 export async function runGBMPrediction(prevState, formData) {
-  // TODO...
+  const user = await getCurrentUser();
+  if (!user) {
+    return { message: "Your session may have expired. Please log in again." };
+  } else if (!formData.get("filename").startsWith(user.id)) {
+    console.log("Fishy activity detected");
+    return { message: "Unauthorized" };
+  }
 
-  const resp = await fetch(`${process.env.KIDNEY_MODEL_SERVER}/predict`);
-  console.log(resp.body);
-
-  return {
-    message: "Hello world, here's a fake prediction",
-    srcfile: formData.get("filename"),
-    pixelsize: formData.get("pixelsize"),
-    gbmwidth: 42,
-    mask: null,
-  };
+  try {
+    const resp = await fetch(`${process.env.KIDNEY_MODEL_SERVER}/predict`, {
+      method: "POST",
+      body: formData,
+    });
+    const predresults = await resp.json();
+    return predresults;
+  } catch (error) {
+    return {
+      message:
+        "Something went wrong while querying the prediction server: " + error,
+    };
+  }
 }
