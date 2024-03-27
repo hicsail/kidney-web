@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
-import { removeUserdirPrefix } from "@/app/utils.js";
+import { removeFilepathPrefix } from "@/app/utils.js";
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   return (
@@ -22,7 +22,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                   (file["Key"] == currSelectedFile ? " bg-blue-200" : "")
                 }
               >
-                {removeUserdirPrefix(file["Key"])}
+                {removeFilepathPrefix(file["Key"])}
                 <DeleteFileForm filename={file["Key"]} />
               </li>
             ))}
@@ -58,7 +58,7 @@ export function GBMMeasurementInterface({ user, files }) {
       <form action={formAction}>
         <h1 className="text-lg font-semibold">Run a prediction</h1>
         {currSelectedFile ? (
-          <p>Current file: {removeUserdirPrefix(currSelectedFile)}</p>
+          <p>Current file: {removeFilepathPrefix(currSelectedFile)}</p>
         ) : (
           <p>Click on a file to run a prediction.</p>
         )}
@@ -96,7 +96,7 @@ export function GBMMeasurementInterface({ user, files }) {
         <p>Message: {predictionResult.message || "n/a"}</p>
         <p>
           Prediction source file:{" "}
-          {removeUserdirPrefix(predictionResult.srcfile) || "n/a"}
+          {removeFilepathPrefix(predictionResult.srcfile) || "n/a"}
         </p>
         <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
         <p>Skeleton length: {predictionResult.skeleton_length || "n/a"} nm</p>
@@ -111,7 +111,7 @@ export function GBMMeasurementInterface({ user, files }) {
         {/*TODO: only render image if... it exists/there is a prediction result...*/}
         {/*TODO: Also save rest of prediction result*/}
         <img
-          src={`http://localhost:3000/predictionimages/masks/${removeUserdirPrefix(currSelectedFile)}`}
+          src={`http://localhost:3000/predictionimages/masks/${removeFilepathPrefix(currSelectedFile)}`}
         />
       </div>
     );

@@ -1,6 +1,15 @@
 "use server";
 
-// The user id is used as the name of the user's subdirectory
+// The s3 bucket used by this app is structured as follows.
+// Each user has his own subdirectory.
+//   The user id is used as the name of the user's subdirectory in the bucket.
+// Each user's subdirectory has the following folders:
+//   - /inputs (images uploaded by the user, on which to run predictions)
+//   - /measurementmasks (output masks from the predictions)
+//   - /???
+// For some input image foo.png, userdir/inputs/foo.png is the original image,
+//   userdir/measurementmasks/foo.png is the masked image with measurement overlay,
+//   and so on.
 
 import {
   S3Client,
@@ -48,7 +57,7 @@ export async function ListUserDirContents() {
   const objects = await client.send(
     new ListObjectsV2Command({
       Bucket: process.env.S3_BUCKET_NAME,
-      Prefix: userdir,
+      Prefix: userdir + "/inputs",
     }),
   );
   if (objects.KeyCount == 0) {
@@ -76,7 +85,7 @@ export async function uploadFileFromForm(prevState, formData) {
     const resp = await client.send(
       new PutObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
-        Key: `${userdir}/${f["name"]}`,
+        Key: `${userdir}/inputs/${f["name"]}`,
         Body: await f.arrayBuffer(),
       }),
     );

@@ -1,6 +1,7 @@
-export function removeUserdirPrefix(filepath) {
+// Returns last /-separated segment of a string.
+export function removeFilepathPrefix(filepath) {
   if (filepath == null) {
     return "";
   }
-  return filepath.split("/", 2)[1];
+  return filepath.split("/").at(-1);
 }
