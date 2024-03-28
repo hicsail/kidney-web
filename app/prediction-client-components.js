@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
@@ -41,19 +41,36 @@ export function GBMMeasurementInterface({ user, files }) {
   // on one image at a time for now, due to uncertainties about how much time/
   // computation each prediction will take.
   const [currSelectedFile, setCurrSelectedFile] = useState(undefined);
-  const [predictionResult, formAction] = useFormState(runGBMPrediction, {
+  const [predictionStatus, formAction] = useFormState(runGBMPrediction, {
+    status: null,
     message: null,
     srcfile: null,
-    pixelsize: null,
-    skeleton_length: null,
-    area: null,
-    GBM_mean_width: null,
-    FP_num: null,
-    FP_mean_width: null,
     measurement_mask_filepath: null,
+    width_info_filepath: null,
   });
 
   function RunPredictForm() {
+    function PredictionStatusReport() {
+      if (!predictionStatus.status) {
+        return;
+      } else if (predictionStatus.status == 200) {
+        return (
+          <p>
+            {predictionStatus.srcfile &&
+              removeFilepathPrefix(predictionStatus.srcfile) + ": "}
+            <span className="text-green-600">{predictionStatus.message}</span>
+          </p>
+        );
+      } else {
+        return (
+          <p>
+            {predictionStatus.srcfile &&
+              removeFilepathPrefix(predictionStatus.srcfile) + ": "}
+            <span className="text-red-600">{predictionStatus.message}</span>
+          </p>
+        );
+      }
+    }
     return (
       <form action={formAction}>
         <h1 className="text-lg font-semibold">Run a prediction</h1>
@@ -71,6 +88,7 @@ export function GBMMeasurementInterface({ user, files }) {
         <label htmlFor="pixelsize">Pixel size in nm:</label>
         <input type="number" id="pixelsize" name="pixelsize" />
         <PredictButton />
+        <PredictionStatusReport />
       </form>
     );
   }
@@ -90,29 +108,71 @@ export function GBMMeasurementInterface({ user, files }) {
     );
   }
   function PredictionResult() {
+    const [predictionResult, setPredictionResult] = useState(undefined);
+
+    useEffect(() => {
+      if (!currSelectedFile) {
+        return;
+      }
+
+      let ignore = false; //aborted fetch will set this to true
+
+      async function startFetching() {
+        const dotJson =
+          removeFilepathPrefix(currSelectedFile)
+            .split(".")
+            .slice(0, -1)
+            .join(".") + ".json";
+
+        try {
+          const resp = await fetch(
+            `http://localhost:3000/predictionresults/widthinfojsons/${dotJson}`,
+          );
+          const widthinfojson = await resp.json();
+          if (!ignore) {
+            setPredictionResult(widthinfojson);
+          }
+        } catch {
+          // Did not find a result file: assume prediction has not been run
+          setPredictionResult(undefined);
+        }
+      }
+      startFetching();
+
+      return () => {
+        ignore = true;
+      };
+    }, [currSelectedFile]);
+
     return (
       <div>
         <h1 className="text-lg font-semibold">Prediction result</h1>
-        <p>Message: {predictionResult.message || "n/a"}</p>
-        <p>
-          Prediction source file:{" "}
-          {removeFilepathPrefix(predictionResult.srcfile) || "n/a"}
-        </p>
-        <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
-        <p>Skeleton length: {predictionResult.skeleton_length || "n/a"} nm</p>
-        <p>Area: {predictionResult.area || "n/a"} nm sq</p>
-        <p>GBM mean width: {predictionResult.GBM_mean_width || "n/a"}</p>
-        <p>FP number: {predictionResult["FP_num"] || "n/a"}</p>
-        <p>FP mean width: {predictionResult.FP_mean_width || "n/a"}</p>
+        {predictionResult ? (
+          <div>
+            <p>Image ID: {predictionResult.image_id || "n/a"}</p>
+            {/* TODO: Sort out both pixel size and input/output extension in prediction server */}
+            <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
+            <p>
+              Skeleton length: {predictionResult.skeleton_length || "n/a"} nm
+            </p>
+            <p>Area: {predictionResult.area || "n/a"} nm sq</p>
+            <p>GBM mean width: {predictionResult.GBM_mean_width || "n/a"}</p>
+            <p>FP number: {predictionResult["FP_num"] || "n/a"}</p>
+            <p>FP mean width: {predictionResult.FP_mean_width || "n/a"}</p>
+            {/*<p>FP widths: {JSON.stringify(predictionResult.FP_widths) || "n/a"}</p>*/}
 
-        <p>GBM mask:</p>
-        {/*TODO: configurable hostname */}
-        {/*TODO: change the extension into png*/}
-        {/*TODO: only render image if... it exists/there is a prediction result...*/}
-        {/*TODO: Also save rest of prediction result*/}
-        <img
-          src={`http://localhost:3000/predictionimages/masks/${removeFilepathPrefix(currSelectedFile)}`}
-        />
+            <p>GBM mask:</p>
+            {/*TODO: configurable hostname */}
+            {/*TODO: change the extension into what is reported by the result*/}
+            <img
+              src={`http://localhost:3000/predictionresults/masks/${predictionResult.image_id}.png`}
+            />
+          </div>
+        ) : (
+          <div>
+            <p>You have not run a prediction on this image yet.</p>
+          </div>
+        )}
       </div>
     );
   }

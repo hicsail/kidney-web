@@ -6,7 +6,7 @@
 // Each user's subdirectory has the following folders:
 //   - /inputs (images uploaded by the user, on which to run predictions)
 //   - /measurementmasks (output masks from the predictions)
-//   - /???
+//   - /widthinfojsons (output values from the predictions)
 // For some input image foo.png, userdir/inputs/foo.png is the original image,
 //   userdir/measurementmasks/foo.png is the masked image with measurement overlay,
 //   and so on.
