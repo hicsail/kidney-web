@@ -10,6 +10,24 @@
 // For some input image foo.png, userdir/inputs/foo.png is the original image,
 //   userdir/measurementmasks/foo.png is the masked image with measurement overlay,
 //   and so on.
+// This file structure is intended to mirror the one originally in use in
+//   Anqi's code - to the extent which makes sense, while accommodating the fact
+//   that at the same time, Anqi's code was written for bulk job runs on a local
+//   machine, not for API calls on individual images. (So, for example, where
+//   originally each job run produced a CSV with width data, one row per input image,
+//   along with a JSON file with individual FP widths, one dict per input
+//   image, now for each input image there is a single JSON file combining
+//   the data from that image's CSV row and JSON dict; this lives under
+//   /widthinfojsons.)
+// The intended way for the user to interact with their files from the web
+//   client is that they click through a list of their input files, and on
+//   clicking each input file, they can access functionality related to that
+//   input file (run prediction, view results, download results, etc).
+// In other words, the web interface is oriented around individual input
+//   images, and not around batch prediction jobs on multiple images.
+//   This decision was driven by client input and had to do with, among other
+//   things, a desire for simplicity along with a concern over the amount
+//   of time needed to run the predictions.
 
 import {
   S3Client,
