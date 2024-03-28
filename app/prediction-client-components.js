@@ -144,10 +144,13 @@ export function GBMMeasurementInterface({ user, files }) {
       };
     }, [currSelectedFile]);
 
-    return (
-      <div>
-        <h1 className="text-lg font-semibold">Prediction result</h1>
-        {predictionResult ? (
+    function FieldsOrMessage() {
+      if (!currSelectedFile) {
+        return <p>Click on a file to view previously saved results.</p>;
+      } else if (!predictionResult) {
+        return <p>You have not run a prediction on this image yet.</p>;
+      } else {
+        return (
           <div>
             <p>Image ID: {predictionResult.image_id || "n/a"}</p>
             {/* TODO: Sort out both pixel size and input/output extension in prediction server */}
@@ -168,11 +171,13 @@ export function GBMMeasurementInterface({ user, files }) {
               src={`http://localhost:3000/predictionresults/masks/${predictionResult.image_id}.png`}
             />
           </div>
-        ) : (
-          <div>
-            <p>You have not run a prediction on this image yet.</p>
-          </div>
-        )}
+        );
+      }
+    }
+    return (
+      <div>
+        <h1 className="text-lg font-semibold">Prediction result</h1>
+        <FieldsOrMessage />
       </div>
     );
   }
