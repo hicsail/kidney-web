@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
-import { removeFilepathPrefix } from "@/app/utils.js";
+import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   return (
@@ -126,15 +126,14 @@ export function GBMMeasurementInterface({ user, files }) {
       let ignore = false; //aborted fetch will set this to true
 
       async function startFetching() {
-        const dotJson =
-          removeFilepathPrefix(currSelectedFile)
-            .split(".")
-            .slice(0, -1)
-            .join(".") + ".json";
+        const jsonfname = changeExtension(
+          removeFilepathPrefix(currSelectedFile),
+          "json",
+        );
 
         try {
           const resp = await fetch(
-            `http://localhost:3000/predictionresults/widthinfojsons/${dotJson}`,
+            `http://localhost:3000/predictionresults/widthinfojsons/${jsonfname}`,
           );
           if (!ignore && resp.status == 200) {
             const widthinfojson = await resp.json();

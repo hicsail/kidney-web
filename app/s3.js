@@ -40,6 +40,7 @@ import {
 
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/app/actions.js";
+import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
 
 const client = new S3Client({
   credentials: {
@@ -139,19 +140,49 @@ export async function deleteFileFromForm(prevState, formData) {
   }
   const userdir = user.id;
 
-  // Check for bad behavior. NB: Putting ".." in filepath does not work either
-  if (!formData.get("filename").startsWith(userdir)) {
-    console.log("Fishy activity detected");
-    return { message: 400 };
+  const unprefixedFilename = removeFilepathPrefix(formData.get("filename"));
+  const inputfilename = `${userdir}/inputs/${unprefixedFilename}`;
+  const outmaskfilename = `${userdir}/measurementmasks/${unprefixedFilename}`;
+  const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
+
+  // Delete associated output files; terminate early if failure
+  for (const k of [outmaskfilename, widthjsonfilename]) {
+    try {
+      const resp = await client.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: k,
+        }),
+      );
+      // This will succeed and return 204 even if file was not found, which is good.
+    } catch (e) {
+      // Whereas this is found but failed to delete - not good.
+      console.log(e);
+      return {
+        message:
+          "Failed to delete one or more associated output files: " +
+          e +
+          "Aborting delete operation.",
+      };
+    }
   }
-  const resp = await client.send(
-    new DeleteObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME,
-      // No userdir prefix here; the userdir is already passed in from the form
-      Key: `${formData.get("filename")}`,
-    }),
-  );
+
+  // Then delete original input file
+  try {
+    const resp = await client.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: inputfilename,
+      }),
+    );
+  } catch (e) {
+    console.log(e);
+    return { message: "Failed to delete file: " + e };
+  }
+
   revalidatePath("/");
 
-  return { message: `${resp.$metadata.httpStatusCode}` };
+  return {
+    message: "Successfully deleted the file and its associated output files.",
+  };
 }

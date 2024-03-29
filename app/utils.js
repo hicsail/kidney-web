@@ -5,3 +5,11 @@ export function removeFilepathPrefix(filepath) {
   }
   return filepath.split("/").at(-1);
 }
+
+export function changeExtension(filename, ext) {
+  if (filename == null) {
+    console.log("changeExtension got empty filename");
+    return "";
+  }
+  return filename.split(".").slice(0, -1).join(".") + "." + ext;
+}
