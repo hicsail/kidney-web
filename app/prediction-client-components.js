@@ -61,6 +61,14 @@ export function GBMMeasurementInterface({ user, files }) {
             <span className="text-green-600">{predictionStatus.message}</span>
           </p>
         );
+      } else if (predictionStatus.status == 400) {
+        return (
+          <p>
+            {predictionStatus.srcfile &&
+              removeFilepathPrefix(predictionStatus.srcfile) + ": "}
+            <span className="text-fuchsia-600">{predictionStatus.message}</span>
+          </p>
+        );
       } else {
         return (
           <p>
