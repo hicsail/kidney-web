@@ -4,9 +4,19 @@ import { useState, useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
+import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
 import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
+  const [uploadFormState, uploadFormAction] = useFormState(uploadFileFromForm, {
+    success: null,
+    message: null,
+  });
+  const [deleteFormState, deleteFormAction] = useFormState(deleteFileFromForm, {
+    success: null,
+    message: null,
+  });
+
   return (
     <div className="flex flex-col space-y-5">
       <h1 className="text-lg font-semibold">Your files</h1>
@@ -23,11 +33,32 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                 }
               >
                 {removeFilepathPrefix(file["Key"])}
-                <DeleteFileForm filename={file["Key"]} />
+                <DeleteFileForm
+                  filename={file["Key"]}
+                  deleteFormAction={deleteFormAction}
+                />
               </li>
             ))}
       </ul>
-      <UploadFileForm />
+      {deleteFormState.message && (
+        <p
+          className={
+            deleteFormState.success ? "text-green-600" : "text-red-600"
+          }
+        >
+          {deleteFormState.message}
+        </p>
+      )}
+      <UploadFileForm uploadFormAction={uploadFormAction} />
+      {uploadFormState.message && (
+        <p
+          className={
+            uploadFormState.success ? "text-green-600" : "text-red-600"
+          }
+        >
+          {uploadFormState.message}
+        </p>
+      )}
     </div>
   );
 }

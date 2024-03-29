@@ -100,8 +100,7 @@ export async function ListUserDirContents() {
 export async function uploadFileFromForm(prevState, formData) {
   const user = await getCurrentUser();
   if (!user) {
-    console.log("Fishy activity detected");
-    return { message: 400 };
+    return { success: false, message: "Please log in" };
   }
   const userdir = user.id;
 
@@ -127,6 +126,7 @@ export async function uploadFileFromForm(prevState, formData) {
   revalidatePath("/");
 
   return {
+    success: successCount == attemptCount,
     message: `${successCount} of ${attemptCount} files successfully uploaded.`,
   };
 }
@@ -135,8 +135,7 @@ export async function uploadFileFromForm(prevState, formData) {
 export async function deleteFileFromForm(prevState, formData) {
   const user = await getCurrentUser();
   if (!user) {
-    console.log("Fishy activity detected");
-    return { message: 400 };
+    return { success: false, message: "Please log in" };
   }
   const userdir = user.id;
 
@@ -159,6 +158,7 @@ export async function deleteFileFromForm(prevState, formData) {
       // Whereas this is found but failed to delete - not good.
       console.log(e);
       return {
+        success: false,
         message:
           "Failed to delete one or more associated output files: " +
           e +
@@ -177,12 +177,13 @@ export async function deleteFileFromForm(prevState, formData) {
     );
   } catch (e) {
     console.log(e);
-    return { message: "Failed to delete file: " + e };
+    return { success: false, message: "Failed to delete file: " + e };
   }
 
   revalidatePath("/");
 
   return {
-    message: "Successfully deleted the file and its associated output files.",
+    success: true,
+    message: `Successfully deleted ${unprefixedFilename} and its associated output files.`,
   };
 }

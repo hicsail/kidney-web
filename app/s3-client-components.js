@@ -1,11 +1,6 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
-
-const formInitialState = {
-  message: null,
-};
+import { useFormStatus } from "react-dom";
 
 function SubmitButton({ text }) {
   const { pending } = useFormStatus();
@@ -21,13 +16,9 @@ function SubmitButton({ text }) {
   );
 }
 
-export function UploadFileForm() {
-  const [state, formAction] = useFormState(
-    uploadFileFromForm,
-    formInitialState,
-  );
+export function UploadFileForm({ uploadFormAction }) {
   return (
-    <form action={formAction}>
+    <form action={uploadFormAction}>
       <label htmlFor="file" className="text-lg font-semibold">
         Upload files:
       </label>
@@ -38,13 +29,9 @@ export function UploadFileForm() {
   );
 }
 
-export function DeleteFileForm({ filename }) {
-  const [state, formAction] = useFormState(
-    deleteFileFromForm,
-    formInitialState,
-  );
+export function DeleteFileForm({ filename, deleteFormAction }) {
   return (
-    <form action={formAction}>
+    <form action={deleteFormAction}>
       <input type="hidden" name="filename" value={filename} required />
       <SubmitButton text="Delete" />
     </form>
