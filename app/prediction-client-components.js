@@ -128,13 +128,14 @@ export function GBMMeasurementInterface({ user, files }) {
           const resp = await fetch(
             `http://localhost:3000/predictionresults/widthinfojsons/${dotJson}`,
           );
-          const widthinfojson = await resp.json();
-          if (!ignore) {
+          if (!ignore && resp.status == 200) {
+            const widthinfojson = await resp.json();
             setPredictionResult(widthinfojson);
+          } else if (!ignore) {
+            setPredictionResult(undefined);
           }
-        } catch {
-          // Did not find a result file: assume prediction has not been run
-          setPredictionResult(undefined);
+        } catch (e) {
+          console.log(e);
         }
       }
       startFetching();

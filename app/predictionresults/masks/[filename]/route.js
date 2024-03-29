@@ -10,5 +10,8 @@ export async function GET(request, { params }) {
   const bytes = await GetUserObject(
     `${userdir}/measurementmasks/${params.filename}`,
   );
+  if (!bytes) {
+    return new Response("Not found", { status: 404 });
+  }
   return new Response(bytes);
 }

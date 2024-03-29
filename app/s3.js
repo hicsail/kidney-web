@@ -35,6 +35,7 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
   DeleteObjectCommand,
+  NoSuchKey,
 } from "@aws-sdk/client-s3";
 
 import { revalidatePath } from "next/cache";
@@ -55,14 +56,24 @@ export async function GetUserObject(key) {
     return { message: 400 };
   }
 
-  const resp = await client.send(
-    new GetObjectCommand({
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: key,
-    }),
-  );
-  const bytes = await resp.Body.transformToByteArray();
-  return bytes;
+  try {
+    const resp = await client.send(
+      new GetObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: key,
+      }),
+    );
+    return await resp.Body.transformToByteArray();
+  } catch (e) {
+    if (e instanceof NoSuchKey) {
+      return null;
+    } else {
+      console.log(e);
+      // will be indistinguishable from 404 downstream.
+      // if need arises, throw e instead and catch in route handlers.
+      return null;
+    }
+  }
 }
 
 export async function ListUserDirContents() {
