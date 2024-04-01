@@ -208,7 +208,7 @@ export function GBMMeasurementInterface({ user, files }) {
         const pxsz = predictionResult.pixel_size;
         const unit = predictionResult.pixel_size_unit;
         return (
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start gap-y-2">
             <div className="grid grid-cols-2">
               <p>Image ID:</p>
               <p>{predictionResult.image_id}</p>
@@ -242,23 +242,37 @@ export function GBMMeasurementInterface({ user, files }) {
               download
             >
               <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
-                Download this result
+                Download result JSON
               </button>
             </a>
 
-            <p>GBM mask:</p>
-            {/*TODO: change the extension into what is reported by the result*/}
-            <img
-              src={`/predictionresults/masks/${predictionResult.image_id}.png`}
-            />
-            <a
-              href={`/predictionresults/masks/${predictionResult.image_id}.png`}
-              download
-            >
-              <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
-                Download this mask
-              </button>
-            </a>
+            <div className="grid grid-cols-2">
+              <p>Original image:</p>
+              <p>GBM mask:</p>
+              <img
+                src={`/predictionresults/inputs/${predictionResult.image_id}.png`}
+              />
+              {/*TODO: change the extension into what is reported by the result*/}
+              <img
+                src={`/predictionresults/masks/${predictionResult.image_id}.png`}
+              />
+              <a
+                href={`/predictionresults/inputs/${predictionResult.image_id}.png`}
+                download
+              >
+                <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
+                  Download original
+                </button>
+              </a>
+              <a
+                href={`/predictionresults/masks/${predictionResult.image_id}.png`}
+                download
+              >
+                <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
+                  Download mask
+                </button>
+              </a>
+            </div>
           </div>
         );
       }
