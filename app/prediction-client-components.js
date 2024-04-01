@@ -180,7 +180,7 @@ export function GBMMeasurementInterface({ user, files }) {
 
         try {
           const resp = await fetch(
-            `http://localhost:3000/predictionresults/widthinfojsons/${jsonfname}`,
+            `/predictionresults/widthinfojsons/${jsonfname}`,
           );
           if (!ignore && resp.status == 200) {
             const widthinfojson = await resp.json();
@@ -238,10 +238,9 @@ export function GBMMeasurementInterface({ user, files }) {
             </a>
 
             <p>GBM mask:</p>
-            {/*TODO: configurable hostname */}
             {/*TODO: change the extension into what is reported by the result*/}
             <img
-              src={`http://localhost:3000/predictionresults/masks/${predictionResult.image_id}.png`}
+              src={`/predictionresults/masks/${predictionResult.image_id}.png`}
             />
             <a
               href={`/predictionresults/masks/${predictionResult.image_id}.png`}
