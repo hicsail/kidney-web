@@ -228,6 +228,14 @@ export function GBMMeasurementInterface({ user, files }) {
               FP mean width: {predictionResult.FP_mean_width * pxsz} {unit}
             </p>
             {/*<p>FP widths: {JSON.stringify(predictionResult.FP_widths) map multiply unit...}</p>*/}
+            <a
+              href={`/predictionresults/widthinfojsons/${predictionResult.image_id}.json`}
+              download
+            >
+              <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
+                Download this result
+              </button>
+            </a>
 
             <p>GBM mask:</p>
             {/*TODO: configurable hostname */}
@@ -235,6 +243,14 @@ export function GBMMeasurementInterface({ user, files }) {
             <img
               src={`http://localhost:3000/predictionresults/masks/${predictionResult.image_id}.png`}
             />
+            <a
+              href={`/predictionresults/masks/${predictionResult.image_id}.png`}
+              download
+            >
+              <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
+                Download this mask
+              </button>
+            </a>
           </div>
         );
       }
