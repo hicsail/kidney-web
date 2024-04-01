@@ -208,26 +208,35 @@ export function GBMMeasurementInterface({ user, files }) {
         const pxsz = predictionResult.pixel_size;
         const unit = predictionResult.pixel_size_unit;
         return (
-          <div>
-            <p>Image ID: {predictionResult.image_id}</p>
-            {/* TODO: Sort out input/output extension in prediction server */}
-            <p>
-              Pixel size: {pxsz} {unit}
-            </p>
-            <p>
-              Skeleton length: {predictionResult.skeleton_length * pxsz} {unit}
-            </p>
-            <p>
-              Area: {predictionResult.area * pxsz * pxsz} sq. {unit}
-            </p>
-            <p>
-              GBM mean width: {predictionResult.GBM_mean_width * pxsz} {unit}
-            </p>
-            <p>FP number: {predictionResult.FP_num}</p>
-            <p>
-              FP mean width: {predictionResult.FP_mean_width * pxsz} {unit}
-            </p>
-            {/*<p>FP widths: {JSON.stringify(predictionResult.FP_widths) map multiply unit...}</p>*/}
+          <div className="flex flex-col items-start">
+            <div className="grid grid-cols-2">
+              <p>Image ID:</p>
+              <p>{predictionResult.image_id}</p>
+              {/* TODO: Sort out input/output extension in prediction server */}
+              <p>Pixel size:</p>
+              <p>
+                {pxsz} {unit}
+              </p>
+              <p>Skeleton length:</p>
+              <p>
+                {predictionResult.skeleton_length * pxsz} {unit}
+              </p>
+              <p>Area:</p>
+              <p>
+                {predictionResult.area * pxsz * pxsz} sq. {unit}
+              </p>
+              <p>GBM mean width:</p>
+              <p>
+                {predictionResult.GBM_mean_width * pxsz} {unit}
+              </p>
+              <p>FP number:</p>
+              <p>{predictionResult.FP_num}</p>
+              <p>FP mean width:</p>
+              <p>
+                {predictionResult.FP_mean_width * pxsz} {unit}
+              </p>
+              {/*<p>FP widths: </p><p>{JSON.stringify(predictionResult.FP_widths) map multiply unit...}</p>*/}
+            </div>
             <a
               href={`/predictionresults/widthinfojsons/${predictionResult.image_id}.json`}
               download
