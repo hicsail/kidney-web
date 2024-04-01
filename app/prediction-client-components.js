@@ -124,8 +124,24 @@ export function GBMMeasurementInterface({ user, files }) {
           value={currSelectedFile}
           required
         />
-        <label htmlFor="pixelsize">Pixel size in nm:</label>
-        <input type="number" id="pixelsize" name="pixelsize" />
+        <label htmlFor="pixelsize">Pixel size:</label>
+        <input
+          type="number"
+          id="pixelsize"
+          name="pixelsize"
+          defaultValue={10}
+          className="px-2"
+          required
+        />
+        <label htmlFor="pixelsizeunit"> unit:</label>
+        <input
+          type="text"
+          id="pixelsizeunit"
+          name="pixelsizeunit"
+          defaultValue="nm"
+          className="px-2"
+          required
+        />
         <PredictButton />
         <PredictionStatusReport />
       </form>
@@ -189,19 +205,29 @@ export function GBMMeasurementInterface({ user, files }) {
       } else if (!predictionResult) {
         return <p>You have not run a prediction on this image yet.</p>;
       } else {
+        const pxsz = predictionResult.pixel_size;
+        const unit = predictionResult.pixel_size_unit;
         return (
           <div>
-            <p>Image ID: {predictionResult.image_id || "n/a"}</p>
-            {/* TODO: Sort out both pixel size and input/output extension in prediction server */}
-            <p>Pixel size: {predictionResult.pixelsize || "n/a"} nm</p>
+            <p>Image ID: {predictionResult.image_id}</p>
+            {/* TODO: Sort out input/output extension in prediction server */}
             <p>
-              Skeleton length: {predictionResult.skeleton_length || "n/a"} nm
+              Pixel size: {pxsz} {unit}
             </p>
-            <p>Area: {predictionResult.area || "n/a"} nm sq</p>
-            <p>GBM mean width: {predictionResult.GBM_mean_width || "n/a"}</p>
-            <p>FP number: {predictionResult["FP_num"] || "n/a"}</p>
-            <p>FP mean width: {predictionResult.FP_mean_width || "n/a"}</p>
-            {/*<p>FP widths: {JSON.stringify(predictionResult.FP_widths) || "n/a"}</p>*/}
+            <p>
+              Skeleton length: {predictionResult.skeleton_length * pxsz} {unit}
+            </p>
+            <p>
+              Area: {predictionResult.area * pxsz * pxsz} sq. {unit}
+            </p>
+            <p>
+              GBM mean width: {predictionResult.GBM_mean_width * pxsz} {unit}
+            </p>
+            <p>FP number: {predictionResult.FP_num}</p>
+            <p>
+              FP mean width: {predictionResult.FP_mean_width * pxsz} {unit}
+            </p>
+            {/*<p>FP widths: {JSON.stringify(predictionResult.FP_widths) map multiply unit...}</p>*/}
 
             <p>GBM mask:</p>
             {/*TODO: configurable hostname */}
