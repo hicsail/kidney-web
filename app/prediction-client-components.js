@@ -131,6 +131,7 @@ export function GBMMeasurementInterface({ user, files }) {
           name="pixelsize"
           defaultValue={10}
           className="px-2"
+          step="any"
           required
         />
         <label htmlFor="pixelsizeunit"> unit:</label>
