@@ -201,6 +201,8 @@ export function GBMMeasurementInterface({ user, files }) {
     }, [currSelectedFile]);
 
     function FieldsOrMessage() {
+      const [showFullFPList, setShowFullFPList] = useState(false);
+
       if (!currSelectedFile) {
         return <p>Click on a file to view previously saved results.</p>;
       } else if (!predictionResult) {
@@ -226,6 +228,15 @@ export function GBMMeasurementInterface({ user, files }) {
       } else {
         const pxsz = predictionResult.pixel_size;
         const unit = predictionResult.pixel_size_unit;
+
+        const fpwidthsConverted = predictionResult.FP_widths.map(
+          (x) => x * pxsz,
+        );
+        // Stringify FP widths as 1, 2, 3, ... instead of 1,2,3,... so that it can wrap when displayed
+        const fpwidthsWrappable = JSON.stringify(fpwidthsConverted)
+          .split(",")
+          .join(", ");
+
         return (
           <div className="flex flex-col items-start gap-y-2">
             <div className="grid grid-cols-2">
@@ -254,7 +265,30 @@ export function GBMMeasurementInterface({ user, files }) {
               <p>
                 {predictionResult.FP_mean_width * pxsz} {unit}
               </p>
-              {/*<p>FP widths: </p><p>{JSON.stringify(predictionResult.FP_widths) map multiply unit...}</p>*/}
+              <p>FP widths:</p>
+              {showFullFPList ? (
+                <p className="text-wrap">
+                  {fpwidthsWrappable} {unit}{" "}
+                  <span
+                    className="font-semibold hover:underline"
+                    onClick={() => setShowFullFPList(!showFullFPList)}
+                  >
+                    (truncate)
+                  </span>
+                </p>
+              ) : (
+                <div className="flex flex-row">
+                  <span className="line-clamp-1">
+                    {fpwidthsWrappable} {unit}
+                  </span>
+                  <span
+                    className="font-semibold hover:underline"
+                    onClick={() => setShowFullFPList(!showFullFPList)}
+                  >
+                    (expand)
+                  </span>
+                </div>
+              )}
             </div>
             <a
               href={`/predictionresults/widthinfojsons/${predictionResult.image_id}.json`}
