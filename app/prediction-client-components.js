@@ -204,7 +204,25 @@ export function GBMMeasurementInterface({ user, files }) {
       if (!currSelectedFile) {
         return <p>Click on a file to view previously saved results.</p>;
       } else if (!predictionResult) {
-        return <p>You have not run a prediction on this image yet.</p>;
+        return (
+          <div>
+            <p>You have not run a prediction on this image yet.</p>
+            <br />
+            <p>Preview original input image:</p>
+            <img
+              src={`/predictionresults/inputs/${removeFilepathPrefix(currSelectedFile)}`}
+              className="max-w-80 max-h-80"
+            />
+            <a
+              href={`/predictionresults/inputs/${removeFilepathPrefix(currSelectedFile)}`}
+              download
+            >
+              <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
+                Download original
+              </button>
+            </a>
+          </div>
+        );
       } else {
         const pxsz = predictionResult.pixel_size;
         const unit = predictionResult.pixel_size_unit;
