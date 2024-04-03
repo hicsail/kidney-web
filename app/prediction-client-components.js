@@ -76,8 +76,6 @@ export function GBMMeasurementInterface({ user, files }) {
     status: null,
     message: null,
     srcfile: null,
-    measurement_mask_filepath: null,
-    width_info_filepath: null,
   });
 
   function RunPredictForm() {
@@ -242,7 +240,6 @@ export function GBMMeasurementInterface({ user, files }) {
             <div className="grid grid-cols-2">
               <p>Image ID:</p>
               <p>{predictionResult.image_id}</p>
-              {/* TODO: Sort out input/output extension in prediction server */}
               <p>Pixel size:</p>
               <p>
                 {pxsz} {unit}
@@ -303,14 +300,13 @@ export function GBMMeasurementInterface({ user, files }) {
               <p>Original image:</p>
               <p>GBM mask:</p>
               <img
-                src={`/predictionresults/inputs/${predictionResult.image_id}.png`}
+                src={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
               />
-              {/*TODO: change the extension into what is reported by the result*/}
               <img
-                src={`/predictionresults/masks/${predictionResult.image_id}.png`}
+                src={`/predictionresults/masks/${predictionResult.image_id}.${predictionResult.measurement_mask_ext}`}
               />
               <a
-                href={`/predictionresults/inputs/${predictionResult.image_id}.png`}
+                href={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
                 download
               >
                 <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
@@ -318,7 +314,7 @@ export function GBMMeasurementInterface({ user, files }) {
                 </button>
               </a>
               <a
-                href={`/predictionresults/masks/${predictionResult.image_id}.png`}
+                href={`/predictionresults/masks/${predictionResult.image_id}.${predictionResult.measurement_mask_ext}`}
                 download
               >
                 <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
