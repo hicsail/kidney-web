@@ -127,20 +127,12 @@ export function GBMMeasurementInterface({ user, files }) {
           type="number"
           id="pixelsize"
           name="pixelsize"
-          defaultValue={10}
+          defaultValue={4.122}
           className="px-2"
           step="any"
           required
-        />
-        <label htmlFor="pixelsizeunit"> unit:</label>
-        <input
-          type="text"
-          id="pixelsizeunit"
-          name="pixelsizeunit"
-          defaultValue="nm"
-          className="px-2"
-          required
-        />
+        />{" "}
+        nm
         <PredictButton />
         <PredictionStatusReport />
       </form>
@@ -224,14 +216,11 @@ export function GBMMeasurementInterface({ user, files }) {
           </div>
         );
       } else {
-        const pxsz = predictionResult.pixel_size;
-        const unit = predictionResult.pixel_size_unit;
+        // Should be nm, but let prediction server report unit anyway.
+        const unit = predictionResult.unit;
 
-        const fpwidthsConverted = predictionResult.FP_widths.map(
-          (x) => x * pxsz,
-        );
         // Stringify FP widths as 1, 2, 3, ... instead of 1,2,3,... so that it can wrap when displayed
-        const fpwidthsWrappable = JSON.stringify(fpwidthsConverted)
+        const fpwidthsWrappable = JSON.stringify(predictionResult.FP_widths)
           .split(",")
           .join(", ");
 
@@ -242,25 +231,25 @@ export function GBMMeasurementInterface({ user, files }) {
               <p>{predictionResult.image_id}</p>
               <p>Pixel size:</p>
               <p>
-                {pxsz} {unit}
+                {predictionResult.pixel_size} {unit}
               </p>
               <p>Skeleton length:</p>
               <p>
-                {predictionResult.skeleton_length * pxsz} {unit}
+                {predictionResult.skeleton_length} {unit}
               </p>
               <p>Area:</p>
               <p>
-                {predictionResult.area * pxsz * pxsz} sq. {unit}
+                {predictionResult.area} sq. {unit}
               </p>
               <p>GBM mean width:</p>
               <p>
-                {predictionResult.GBM_mean_width * pxsz} {unit}
+                {predictionResult.GBM_mean_width} {unit}
               </p>
               <p>FP number:</p>
               <p>{predictionResult.FP_num}</p>
               <p>FP mean width:</p>
               <p>
-                {predictionResult.FP_mean_width * pxsz} {unit}
+                {predictionResult.FP_mean_width} {unit}
               </p>
               <p>FP widths:</p>
               {showFullFPList ? (
