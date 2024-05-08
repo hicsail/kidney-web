@@ -20,7 +20,7 @@ export function UploadFileForm({ uploadFormAction }) {
   return (
     <form action={uploadFormAction}>
       <label htmlFor="file" className="text-lg font-semibold">
-        Upload files:
+        Upload files
       </label>
       <br />
       <input type="file" id="file" name="file" multiple required />

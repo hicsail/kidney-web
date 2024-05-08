@@ -19,8 +19,18 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
 
   return (
     <div className="flex flex-col space-y-5">
+      <UploadFileForm uploadFormAction={uploadFormAction} />
+      {uploadFormState.message && (
+        <p
+          className={
+            uploadFormState.success ? "text-green-600" : "text-red-600"
+          }
+        >
+          {uploadFormState.message}
+        </p>
+      )}
       <h1 className="text-lg font-semibold">Your files</h1>
-      <ul className="divide-y divide-slate-400">
+      <ul className="divide-y divide-slate-400 overflow-x-auto max-h-[60vh] overflow-y-scroll">
         {files.length == 0
           ? "You have no uploaded files yet."
           : files.map((file) => (
@@ -47,16 +57,6 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
           }
         >
           {deleteFormState.message}
-        </p>
-      )}
-      <UploadFileForm uploadFormAction={uploadFormAction} />
-      {uploadFormState.message && (
-        <p
-          className={
-            uploadFormState.success ? "text-green-600" : "text-red-600"
-          }
-        >
-          {uploadFormState.message}
         </p>
       )}
     </div>
@@ -287,7 +287,7 @@ export function GBMMeasurementInterface({ user, files }) {
 
             <div className="grid grid-cols-2">
               <p>Original image:</p>
-              <p>GBM mask:</p>
+              <p>GBM and FP predictions:</p>
               <img
                 src={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
               />
