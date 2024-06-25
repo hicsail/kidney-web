@@ -1,10 +1,12 @@
 # kidney-web
 
-The AI Digital Kidney Biopsy project builds tools for the analysis of TEM kidney images. Artificial intelligence and computer vision are utilized to measure and calculate properties of the kidney glomerular ultrastructure, for the purposes of aiding in clinical diagnosis and novel drug development. 
+The AI Digital Kidney Biopsy project builds tools for the analysis of TEM kidney images. Artificial intelligence and computer vision are utilized to measure and calculate properties of the kidney glomerular ultrastructure, for the purposes of aiding in clinical diagnosis and novel drug development.
 
 This repository contains the code for the web client component of the application; the back-end code is in a private repository outside of the hicsail GitHub account.
 
 ### Architecture and Deployment
+
+![Architecture Diagram](docs/architecture.png?raw=true "Architecture Diagram")
 
 At present, the back-end functionality is limited to running segmentation and prediction on an image; this functionality is accessible through a single endpoint `/predict` on the backend server. The inputs are a single image and a pixel size parameter; the outputs are one or more images (mask overlays) along with various metrics and metadata in JSON format. For the initial iteration of the web client, bulk jobs on batches of images are not supported.
 
