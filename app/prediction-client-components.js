@@ -18,47 +18,51 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   });
 
   return (
-    <div className="flex flex-col space-y-5">
-      <UploadFileForm uploadFormAction={uploadFormAction} />
-      {uploadFormState.message && (
-        <p
-          className={
-            uploadFormState.success ? "text-green-600" : "text-red-600"
-          }
-        >
-          {uploadFormState.message}
-        </p>
-      )}
-      <h1 className="text-lg font-semibold">Your files</h1>
-      <ul className="divide-y divide-slate-400 overflow-x-auto max-h-[60vh] overflow-y-scroll">
-        {files.length == 0
-          ? "You have no uploaded files yet."
-          : files.map((file) => (
-              <li
-                key={file["Key"]}
-                onClick={() => setCurrSelectedFile(file["Key"])}
-                className={
-                  "flex flex-row py-1 px-1 items-center justify-between hover:bg-blue-100" +
-                  (file["Key"] == currSelectedFile ? " bg-blue-200" : "")
-                }
-              >
-                {removeFilepathPrefix(file["Key"])}
-                <DeleteFileForm
-                  filename={file["Key"]}
-                  deleteFormAction={deleteFormAction}
-                />
-              </li>
-            ))}
-      </ul>
-      {deleteFormState.message && (
-        <p
-          className={
-            deleteFormState.success ? "text-green-600" : "text-red-600"
-          }
-        >
-          {deleteFormState.message}
-        </p>
-      )}
+    <div className="w-full max-w-xl h-full">
+      <div className="flex flex-col space-y-10 bg-white p-4 rounded-lg shadow-md">
+        <UploadFileForm uploadFormAction={uploadFormAction} />
+        {uploadFormState.message && (
+          <p
+            className={
+              uploadFormState.success ? "text-green-600" : "text-red-600" 
+            }
+          >
+            {uploadFormState.message}
+          </p>
+        )}
+      </div>
+      <div className="flex flex-col space-y-10 bg-white p-4 rounded-lg shadow-md mt-6">
+        <h1 className="text-lg font-semibold">Select a File</h1>
+          <ul className="divide-y divide-slate-400 overflow-x-auto max-h-[60vh] overflow-y-scroll">
+            {files.length == 0
+              ? "You have no uploaded files yet."
+              : files.map((file) => (
+                  <li
+                    key={file["Key"]}
+                    onClick={() => setCurrSelectedFile(file["Key"])}
+                    className={
+                      "flex flex-row py-1 px-1 items-center justify-between hover:bg-blue-100" +
+                      (file["Key"] == currSelectedFile ? " bg-blue-200" : "")
+                    }
+                  >
+                    {removeFilepathPrefix(file["Key"])}
+                    <DeleteFileForm
+                      filename={file["Key"]}
+                      deleteFormAction={deleteFormAction}
+                    />
+                  </li>
+                ))}
+          </ul>
+          {deleteFormState.message && (
+            <p
+              className={
+                deleteFormState.success ? "text-green-600" : "text-red-600" 
+              }
+            >
+              {deleteFormState.message}
+            </p>
+          )}
+      </div>
     </div>
   );
 }
@@ -324,7 +328,7 @@ export function GBMMeasurementInterface({ user, files }) {
   }
 
   return (
-    <div className="flex flex-row my-24 space-x-16">
+    <div className="flex flex-row space-x-16">
       <div>
         <UserFiles
           files={files}

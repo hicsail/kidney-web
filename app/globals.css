@@ -18,6 +18,23 @@ body {
     rgb(var(--background-start-rgb));
 }
 
+.btn {
+  background-color: #000000; 
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-align: center;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #464646; 
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

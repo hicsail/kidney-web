@@ -43,10 +43,12 @@ export default async function Home() {
   const files = user ? await ListUserDirContents() : null;
 
   return (
-    <main className="flex min-h-screen flex-col p-24">
+    <main className="flex min-h-screen flex-col px-[1vw]">
       <Navbar user={user} />
-      <Greeting user={user} />
-      <GBMMeasurementInterface user={user} files={files} />
+      <div className="py-[5.5vw]" >
+        {/* <Greeting user={user} /> */}
+        <GBMMeasurementInterface user={user} files={files} />
+      </div>
     </main>
   );
 }

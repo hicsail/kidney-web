@@ -11,7 +11,7 @@ const Navbar = ({ user }) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
   return (
-    <nav style={{ backgroundColor: 'rgb(204, 204, 204)' }} className=" p-4 flex justify-between items-center w-full fixed top-0 left-0">
+    <nav style={{ backgroundColor: 'rgb(204, 204, 204)', padding: '2vh'}} className="flex justify-between items-center w-full fixed top-0 left-0">
       <div className="flex items-center">
         <div className="mr-2 h-8 w-8">
           <img src="/vercel.svg" alt="Logo" className="h-full w-full" />
