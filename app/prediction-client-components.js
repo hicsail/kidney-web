@@ -6,6 +6,7 @@ import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
 import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
 import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
+import '@/app/style.css';
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   const [uploadFormState, uploadFormAction] = useFormState(uploadFileFromForm, {
@@ -18,8 +19,8 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   });
 
   return (
-    <div className="w-full max-w-xl h-full">
-      <div className="flex flex-col space-y-10 bg-white p-4 rounded-lg shadow-md">
+    <div className="h-full w-70">
+      <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md">
         <UploadFileForm uploadFormAction={uploadFormAction} />
         {uploadFormState.message && (
           <p
@@ -31,9 +32,14 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
           </p>
         )}
       </div>
-      <div className="flex flex-col space-y-10 bg-white p-4 rounded-lg shadow-md mt-6">
+      <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md mt-6 mb-6">
         <h1 className="text-lg font-semibold">Select a File</h1>
-          <ul className="divide-y divide-slate-400 overflow-x-auto max-h-[60vh] overflow-y-scroll">
+        <div className="w-60">
+          <p className="text-sm text-gray-500">
+            Select a file to run a segmentation prediction, classification, or generate a report. You can only select one file at a time.
+          </p>
+        </div>
+          <ul className="divide-y divide-slate-400 overflow-x-auto overflow-y-scroll">
             {files.length == 0
               ? "You have no uploaded files yet."
               : files.map((file) => (
@@ -54,13 +60,15 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                 ))}
           </ul>
           {deleteFormState.message && (
-            <p
-              className={
-                deleteFormState.success ? "text-green-600" : "text-red-600" 
-              }
-            >
-              {deleteFormState.message}
+            <div className="">
+              <p
+                className={
+                  deleteFormState.success ? "text-green-600" : "text-red-600" 
+                }
+              >
+                {deleteFormState.message}
             </p>
+            </div>
           )}
       </div>
     </div>

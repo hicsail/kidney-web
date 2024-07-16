@@ -24,10 +24,10 @@ export function UploadFileForm({ uploadFormAction }) {
         Upload files
       </label>
       <p className="text-sm text-gray-500 mt-1 pt-[0.5vh]">Upload one or more files.</p>
-      <div className="mt-4 pt-[1.5vh] pl-[1vw]">
+      <div className="mt-2 pt-[1.5vh] pl-[0.7vw]">
           <input type="file" id="file" name="file" multiple required />
       </div>
-      <div className="mt-4 pt-[1.6vh]">
+      <div className="mt-2 pt-[1.6vh]">
         <SubmitButton text="Upload" width="100%" />
       </div>
     </form>

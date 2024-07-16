@@ -37,3 +37,9 @@ input[type="file"] {
 .btn:hover {
     background-color: #464646; 
 }
+
+.break-words {
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+  }
