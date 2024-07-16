@@ -1,10 +1,12 @@
-import Image from "next/image";
-import { getCurrentUser } from "@/app/actions.js";
-import { ListUserDirContents } from "@/app/s3.js";
+// src/app/page.js or src/pages/index.js
 
-import { GBMMeasurementInterface } from "@/app/prediction-client-components.js";
+import Image from 'next/image';
+import { getCurrentUser } from '@/app/actions';
+import { ListUserDirContents } from '@/app/s3';
+import { GBMMeasurementInterface } from '@/app/prediction-client-components';
+import Navbar from '@/app/navbar';
 
-function Greeting({ user }) {
+function Greeting({ user }) { 
   if (!user) {
     return (
       <div className="flex flex-row items-center justify-between space-x-5">
@@ -42,6 +44,7 @@ export default async function Home() {
 
   return (
     <main className="flex min-h-screen flex-col p-24">
+      <Navbar user={user} />
       <Greeting user={user} />
       <GBMMeasurementInterface user={user} files={files} />
     </main>
