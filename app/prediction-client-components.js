@@ -6,6 +6,7 @@ import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
 import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
 import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
+import { useForm, Controller } from 'react-hook-form';
 import '@/app/style.css';
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
@@ -23,11 +24,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md">
         <UploadFileForm uploadFormAction={uploadFormAction} />
         {uploadFormState.message && (
-          <p
-            className={
-              uploadFormState.success ? "text-green-600" : "text-red-600" 
-            }
-          >
+          <p className={uploadFormState.success ? "text-green-600" : "text-red-600"}>
             {uploadFormState.message}
           </p>
         )}
@@ -39,51 +36,86 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
             Select a file to run a segmentation prediction, classification, or generate a report. You can only select one file at a time.
           </p>
         </div>
+        <div>
           <ul className="divide-y divide-slate-400 overflow-x-auto overflow-y-scroll">
             {files.length == 0
               ? "You have no uploaded files yet."
               : files.map((file) => (
-                  <li
-                    key={file["Key"]}
-                    onClick={() => setCurrSelectedFile(file["Key"])}
-                    className={
-                      "flex flex-row py-1 px-1 items-center justify-between hover:bg-blue-100" +
-                      (file["Key"] == currSelectedFile ? " bg-blue-200" : "")
-                    }
-                  >
-                    {removeFilepathPrefix(file["Key"])}
-                    <DeleteFileForm
-                      filename={file["Key"]}
-                      deleteFormAction={deleteFormAction}
-                    />
-                  </li>
-                ))}
+                <li
+                  key={file["Key"]}
+                  onClick={() => setCurrSelectedFile(file["Key"])}
+                  className={
+                    "flex flex-row py-1 px-1 items-center justify-between hover:bg-blue-100" +
+                    (file["Key"] == currSelectedFile ? " bg-blue-200" : "") +
+                    " overflow-hidden"
+                  }
+                >
+                  {removeFilepathPrefix(file["Key"])}
+                  <DeleteFileForm
+                    filename={file["Key"]}
+                    deleteFormAction={deleteFormAction}
+                  />
+                </li>
+              ))}
           </ul>
           {deleteFormState.message && (
-            <div className="">
-              <p
-                className={
-                  deleteFormState.success ? "text-green-600" : "text-red-600" 
-                }
-              >
+            <div className="w-60">
+              <p className={deleteFormState.success ? "text-green-600" : "text-red-600"}>
                 {deleteFormState.message}
-            </p>
+              </p>
             </div>
           )}
+        </div>
       </div>
     </div>
   );
 }
 
 export function GBMMeasurementInterface({ user, files }) {
+  const [currentTab, setCurrentTab] = useState(0);
+  const [currSelectedFile, setCurrSelectedFile] = useState(undefined);
+
   if (!user) {
     return <p>Log in to view your files and run predictions.</p>;
   }
-  // currently selected file is a single filename, and deliberately not a list;
-  // this is because the client has explicitly said to only allow prediction
-  // on one image at a time for now, due to uncertainties about how much time/
-  // computation each prediction will take.
-  const [currSelectedFile, setCurrSelectedFile] = useState(undefined);
+
+  const tabs = [
+    { label: 'Segmentation', content: <RunPredictionTab currSelectedFile={currSelectedFile} /> },
+    { label: 'Classification', content: <EmptyTab /> },
+    { label: 'Reports', content: <EmptyTab /> },
+    { label: 'How to', content: <EmptyTab /> }
+  ];
+
+  return (
+    <div className="flex flex-row space-x-4">
+      <div>
+        <UserFiles
+          files={files}
+          currSelectedFile={currSelectedFile}
+          setCurrSelectedFile={setCurrSelectedFile}
+        />
+      </div>
+      <div className="flex-1">
+          <div className="flex space-x-0">
+            {tabs.map((tab, index) => (
+              <button
+                key={index}
+                className={`tab-button px-4 py-2 rounded-t-lg ${currentTab === index ? 'bg-white border border-b-0' : 'bg-gray-200'}`}
+                onClick={() => setCurrentTab(index)}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        <div className="bg-white p-4 rounded-b-lg shadow-md">
+          {tabs[currentTab].content}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RunPredictionTab({ currSelectedFile }) {
   const [predictionStatus, formAction] = useFormState(runGBMPrediction, {
     status: null,
     message: null,
@@ -93,7 +125,7 @@ export function GBMMeasurementInterface({ user, files }) {
   function RunPredictForm() {
     function PredictionStatusReport() {
       if (!predictionStatus.status) {
-        return;
+        return null;
       } else if (predictionStatus.status == 200) {
         return (
           <p>
@@ -120,6 +152,7 @@ export function GBMMeasurementInterface({ user, files }) {
         );
       }
     }
+
     return (
       <form action={formAction}>
         <h1 className="text-lg font-semibold">Run a prediction</h1>
@@ -150,6 +183,7 @@ export function GBMMeasurementInterface({ user, files }) {
       </form>
     );
   }
+
   function PredictButton() {
     const { pending } = useFormStatus();
     const disabled = pending || currSelectedFile == undefined;
@@ -165,6 +199,7 @@ export function GBMMeasurementInterface({ user, files }) {
       </button>
     );
   }
+
   function PredictionResult() {
     const [predictionResult, setPredictionResult] = useState(undefined);
 
@@ -327,27 +362,26 @@ export function GBMMeasurementInterface({ user, files }) {
         );
       }
     }
+
     return (
-      <div>
-        <h1 className="text-lg font-semibold">Prediction result</h1>
-        <FieldsOrMessage />
+      <div className="flex space-x-4">
+        <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
+          <RunPredictForm />
+        </div>
+        <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
+          <FieldsOrMessage />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-row space-x-16">
-      <div>
-        <UserFiles
-          files={files}
-          currSelectedFile={currSelectedFile}
-          setCurrSelectedFile={setCurrSelectedFile}
-        />
-      </div>
-      <div className="space-y-4">
-        <RunPredictForm />
-        <PredictionResult />
-      </div>
+    <div className="space-y-4">
+      <PredictionResult />
     </div>
   );
+}
+
+function EmptyTab() {
+  return <div>Content for this tab is not yet implemented.</div>;
 }
