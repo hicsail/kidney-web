@@ -100,7 +100,7 @@ export function GBMMeasurementInterface({ user, files }) {
             {tabs.map((tab, index) => (
               <button
                 key={index}
-                className={`tab-button px-4 py-2 rounded-t-lg ${currentTab === index ? 'bg-white border border-b-0' : 'bg-gray-200'}`}
+                className={`tab-button px-4 py-2 rounded-t-lg ${currentTab === index ? 'bg-white border border-b-0 active' : 'bg-gray-200'}`}
                 onClick={() => setCurrentTab(index)}
               >
                 {tab.label}
@@ -155,31 +155,42 @@ function RunPredictionTab({ currSelectedFile }) {
 
     return (
       <form action={formAction}>
-        <h1 className="text-lg font-semibold">Run a prediction</h1>
+        <h1 className="text-lg font-semibold">Selected File:</h1>
+        <div className="">
         {currSelectedFile ? (
-          <p>Current file: {removeFilepathPrefix(currSelectedFile)}</p>
+          <p className="text-sm text-gray-500">{removeFilepathPrefix(currSelectedFile)}</p>
         ) : (
-          <p>Click on a file to run a prediction.</p>
+          <p className="text-sm text-gray-500">Click on a file to run a prediction.</p>
         )}
+        </div>
         <input
           type="hidden"
           name="filename"
           value={currSelectedFile}
           required
         />
-        <label htmlFor="pixelsize">Pixel size:</label>
-        <input
-          type="number"
-          id="pixelsize"
-          name="pixelsize"
-          defaultValue={4.122}
-          className="px-2"
-          step="any"
-          required
-        />{" "}
-        nm
-        <PredictButton />
-        <PredictionStatusReport />
+        <div className="mt-4">
+          <label className="text-lg font-semibold">Pixel Size:</label>
+          <p className="text-sm text-gray-500">Set the pixel size in nm.</p>
+        </div>
+        <div className="mt-6 flex items-center">
+          <p className="text-sm black mr-4">Pixel Size:</p>
+          <input
+            type="number"
+            id="pixelsize"
+            name="pixelsize"
+            defaultValue={4.122}
+            className="px-2 rounded-md border b-gray-200"
+            step="any"
+            required
+          />{" "}
+        </div>
+        <div className="mt-8 flex justify-center">
+          <PredictButton />
+        </div>
+        <div className="mt-4">
+          <PredictionStatusReport />
+        </div>
       </form>
     );
   }
@@ -193,9 +204,9 @@ function RunPredictionTab({ currSelectedFile }) {
         type="submit"
         aria-disabled={disabled}
         disabled={disabled}
-        className="px-4 py-1 rounded-full border border-black bg-slate-200 hover:text-white hover:bg-slate-600 disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500"
+        className={`btn w-60 ${disabled ? 'disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500' : ''}`}
       >
-        {pending ? <i>Pending...</i> : <>Predict</>}
+        {pending ? <i>Pending...</i> : <>Run Prediction</>}
       </button>
     );
   }
@@ -239,27 +250,30 @@ function RunPredictionTab({ currSelectedFile }) {
 
     function FieldsOrMessage() {
       const [showFullFPList, setShowFullFPList] = useState(false);
-
       if (!currSelectedFile) {
-        return <p>Click on a file to view previously saved results.</p>;
+        return (
+          <div>
+            <h1 className="text-lg font-semibold">Preview File:</h1>
+            <p className="text-sm text-gray-500">Click on a file to view previously saved results.</p>
+          </div>
+        );
       } else if (!predictionResult) {
         return (
           <div>
-            <p>You have not run a prediction on this image yet.</p>
-            <br />
-            <p>Preview original input image:</p>
+            <h1 className="text-lg font-semibold">Preview File:</h1>
+            <p className="text-sm text-gray-500">{removeFilepathPrefix(currSelectedFile)}</p>
             <img
               src={`/predictionresults/inputs/${removeFilepathPrefix(currSelectedFile)}`}
-              className="max-w-80 max-h-80"
+              className="max-w-full max-h-full mt-2"
             />
-            <a
+            {/* <a
               href={`/predictionresults/inputs/${removeFilepathPrefix(currSelectedFile)}`}
               download
             >
               <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
                 Download original
               </button>
-            </a>
+            </a> */}
           </div>
         );
       } else {
