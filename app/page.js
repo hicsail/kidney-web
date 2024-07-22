@@ -46,7 +46,7 @@ export default async function Home() {
   return (
     <main className="flex min-h-screen flex-col px-[1vw]">
       <Navbar user={user} />
-      <div className="py-[10vh]" >
+      <div className="pt-[10vh]" >
         <Greeting user={user} />
         <GBMMeasurementInterface user={user} files={files} />
       </div>

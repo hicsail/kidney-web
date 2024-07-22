@@ -17,6 +17,20 @@ function SubmitButton({ text, width }) {
   );
 }
 
+function DeleteButton({ text, width }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      aria-disabled={pending}
+      className="delete-btn" style={{ width: width || 'auto' }}
+    >
+      {text}
+    </button>
+  );
+}
+
 export function UploadFileForm({ uploadFormAction }) {
   return (
     <form action={uploadFormAction}>
@@ -38,7 +52,7 @@ export function DeleteFileForm({ filename, deleteFormAction }) {
   return (
     <form action={deleteFormAction}>
       <input type="hidden" name="filename" value={filename} required />
-      <SubmitButton text="Delete" />
+      <DeleteButton text="Delete" />
     </form>
   );
 }

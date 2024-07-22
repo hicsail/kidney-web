@@ -36,8 +36,12 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
             Select a file to run a segmentation prediction, classification, or generate a report. You can only select one file at a time.
           </p>
         </div>
-        <div>
-          <ul className="divide-y divide-slate-400 overflow-x-auto overflow-y-scroll">
+        <div className="">
+          <ul className="divide-y divide-slate-200">
+            <li className="flex flex-row py-3.5 px-5 items-center justify-between bg-gray-200 rounded-t-lg">
+              <span>File name</span>
+              <span>Actions</span>
+            </li>
             {files.length == 0
               ? "You have no uploaded files yet."
               : files.map((file) => (
@@ -45,12 +49,11 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                   key={file["Key"]}
                   onClick={() => setCurrSelectedFile(file["Key"])}
                   className={
-                    "flex flex-row py-1 px-1 items-center justify-between hover:bg-blue-100" +
-                    (file["Key"] == currSelectedFile ? " bg-blue-200" : "") +
-                    " overflow-hidden"
+                    "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-100" +
+                    (file["Key"] == currSelectedFile ? " bg-gray-100" : "")
                   }
                 >
-                  {removeFilepathPrefix(file["Key"])}
+                  <span style={{ color: 'rgba(83, 172, 255, 1)' }}>{removeFilepathPrefix(file["Key"])}</span>
                   <DeleteFileForm
                     filename={file["Key"]}
                     deleteFormAction={deleteFormAction}
@@ -100,14 +103,14 @@ export function GBMMeasurementInterface({ user, files }) {
             {tabs.map((tab, index) => (
               <button
                 key={index}
-                className={`tab-button px-4 py-2 rounded-t-lg ${currentTab === index ? 'bg-white border border-b-0 active' : 'bg-gray-200'}`}
+                className={`tab-button px-4 py-2 rounded-lg ${currentTab === index ? 'bg-white border border-b-0 active' : 'bg-gray-200'}`}
                 onClick={() => setCurrentTab(index)}
               >
                 {tab.label}
               </button>
             ))}
           </div>
-        <div className="bg-white p-4 rounded-b-lg shadow-md">
+        <div className="bg-white p-4 rounded-lg shadow-md">
           {tabs[currentTab].content}
         </div>
       </div>
