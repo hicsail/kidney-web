@@ -19,6 +19,25 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
     message: null,
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Set the number of items per page
+
+  const totalPages = Math.ceil(files.length / itemsPerPage);
+
+  const paginatedFiles = files.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+
+  const handlePageClick = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="h-full w-70">
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md">
@@ -42,25 +61,49 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
               <span>File name</span>
               <span>Actions</span>
             </li>
-            {files.length == 0
-              ? "You have no uploaded files yet."
-              : files.map((file) => (
+            {files.length === 0 ? (
+              <li className="py-2.5 px-5">You have no uploaded files yet.</li>
+            ) : (
+              paginatedFiles.map((file) => (
                 <li
                   key={file["Key"]}
                   onClick={() => setCurrSelectedFile(file["Key"])}
                   className={
                     "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-100" +
-                    (file["Key"] == currSelectedFile ? " bg-gray-100" : "")
+                    (file["Key"] === currSelectedFile ? " bg-gray-100" : "")
                   }
                 >
                   <span style={{ color: 'rgba(83, 172, 255, 1)' }}>{removeFilepathPrefix(file["Key"])}</span>
-                  <DeleteFileForm
-                    filename={file["Key"]}
-                    deleteFormAction={deleteFormAction}
-                  />
+                  <DeleteFileForm filename={file["Key"]} deleteFormAction={deleteFormAction} />
                 </li>
-              ))}
+              ))
+            )}
           </ul>
+          <div className="flex justify-center items-center mt-4 mb-4 space-x-1">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className={`pagination-button ${currentPage === 1 ? 'disabled' : ''}`}
+            >
+              &lt;
+            </button>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => handlePageClick(index + 1)}
+                className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className={`pagination-button ${currentPage === totalPages ? 'disabled' : ''}`}
+            >
+              &gt;
+            </button>
+          </div>
           {deleteFormState.message && (
             <div className="w-60">
               <p className={deleteFormState.success ? "text-green-600" : "text-red-600"}>
