@@ -9,16 +9,14 @@ input[type="file"]::file-selector-button {
     text-align: center;
     display: inline-block;
     transition: background-color 0.3s;
-  }
-  
-/* Additional styles for the file input button */
-input[type="file"]::file-selector-button:hover {
-    background-color: #464646; /* Darker green on hover */
 }
-  
-/* Add margin to the file input */
+
+input[type="file"]::file-selector-button:hover {
+    background-color: #464646;
+}
+
 input[type="file"] {
-    margin-right: 20px; /* Adjust the spacing as needed */
+    margin-right: 20px;
 }
 
 .btn {
@@ -47,25 +45,17 @@ input[type="file"] {
 .tab-button {
     border-radius: 0.5rem 0.5rem 0.5rem 0.5rem; 
     border: 1px solid #d3d3d3;
-    background-color: #ececec; /* Light gray background for inactive tabs */
-    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    background-color: #ececec;
+    transition: background-color 0.3s ease;
 }
   
 .tab-button:hover {
-    background-color: white; /* Slightly darker gray on hover */
+    background-color: white;
 }
   
 .tab-button.active {
     background-color: white;
 }
-  
-/* .bg-white {
-    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem; 
-}
-  
-.bg-gray-200 {
-    border-radius: 0.5rem 0.5rem 0.5rem 0.5rem; 
-} */
 
 .border-black {
     border: 1px solid black;
@@ -94,6 +84,13 @@ input[type="file"] {
     color: rgba(232,224,224,255); 
 }
 
+.file-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 250px;
+}
+
 .pagination-button {
     background-color: white;
     border: 1px solid #ccc;
@@ -115,8 +112,8 @@ input[type="file"] {
 }
 
 .pagination-button.disabled {
-    background-color: #e0e0e0; /* Light gray background for disabled */
-    color: #a0a0a0; /* Gray text for disabled */
-    cursor: not-allowed; /* Not-allowed cursor for disabled state */
-    pointer-events: none; /* Disable hover and click events */
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+    pointer-events: none;
 }

@@ -20,7 +20,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Set the number of items per page
+  const itemsPerPage = 5;
 
   const totalPages = Math.ceil(files.length / itemsPerPage);
 
@@ -73,7 +73,11 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                     (file["Key"] === currSelectedFile ? " bg-gray-100" : "")
                   }
                 >
-                  <span style={{ color: 'rgba(83, 172, 255, 1)' }}>{removeFilepathPrefix(file["Key"])}</span>
+                  <div className="file-name w-3/5 truncate">
+                    <span style={{ color: 'rgba(83, 172, 255, 1)' }}>
+                      {removeFilepathPrefix(file["Key"])}
+                    </span>
+                  </div>
                   <DeleteFileForm filename={file["Key"]} deleteFormAction={deleteFormAction} />
                 </li>
               ))
