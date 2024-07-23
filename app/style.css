@@ -88,7 +88,13 @@ input[type="file"] {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: 250px;
+    max-width: 300px;
+}
+
+.delete-message {
+    width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .pagination-button {

@@ -39,7 +39,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   };
 
   return (
-    <div className="h-full w-70">
+    <div className="h-full max-w-md">
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md">
         <UploadFileForm uploadFormAction={uploadFormAction} />
         {uploadFormState.message && (
@@ -50,8 +50,8 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
       </div>
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md mt-6 mb-6">
         <h1 className="text-lg font-semibold">Select a File</h1>
-        <div className="w-60">
-          <p className="text-sm text-gray-500">
+        <div className="">
+          <p className="text-sm text-gray-500 delete-message">
             Select a file to run a segmentation prediction, classification, or generate a report. You can only select one file at a time.
           </p>
         </div>
@@ -73,7 +73,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
                     (file["Key"] === currSelectedFile ? " bg-gray-100" : "")
                   }
                 >
-                  <div className="file-name w-3/5 truncate">
+                  <div className="file-name">
                     <span style={{ color: 'rgba(83, 172, 255, 1)' }}>
                       {removeFilepathPrefix(file["Key"])}
                     </span>
@@ -109,8 +109,8 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
             </button>
           </div>
           {deleteFormState.message && (
-            <div className="w-60">
-              <p className={deleteFormState.success ? "text-green-600" : "text-red-600"}>
+            <div>
+              <p className={deleteFormState.success ? "text-green-600 + delete-message" : "text-red-600 + delete-message"}>
                 {deleteFormState.message}
               </p>
             </div>
