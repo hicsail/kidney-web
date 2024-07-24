@@ -126,7 +126,7 @@ export function GBMMeasurementInterface({ user, files }) {
   const [currSelectedFile, setCurrSelectedFile] = useState(undefined);
 
   if (!user) {
-    return <p>Log in to view your files and run predictions.</p>;
+    return <p className="flex flex-col items-center justify-between space-x-5 text-2xl font-bold pt-10">Log in to view your files and run predictions.</p>;
   }
 
   const tabs = [
@@ -224,7 +224,7 @@ function RunPredictionTab({ currSelectedFile }) {
           <p className="text-sm text-gray-500">Set the pixel size in nm.</p>
         </div>
         <div className="mt-6 flex items-center">
-          <p className="text-sm black mr-4">Pixel Size:</p>
+          <p className="text-sm black mr-3">Pixel Size:</p>
           <input
             type="number"
             id="pixelsize"
@@ -336,90 +336,109 @@ function RunPredictionTab({ currSelectedFile }) {
           .join(", ");
 
         return (
-          <div className="flex flex-col items-start gap-y-2">
-            <div className="grid grid-cols-2">
-              <p>Image ID:</p>
-              <p>{predictionResult.image_id}</p>
-              <p>Pixel size:</p>
-              <p>
-                {predictionResult.pixel_size} {unit}
-              </p>
-              <p>Skeleton length:</p>
-              <p>
-                {predictionResult.skeleton_length} {unit}
-              </p>
-              <p>Area:</p>
-              <p>
-                {predictionResult.area} sq. {unit}
-              </p>
-              <p>GBM mean width:</p>
-              <p>
-                {predictionResult.GBM_mean_width} {unit}
-              </p>
-              <p>FP number:</p>
-              <p>{predictionResult.FP_num}</p>
-              <p>FP mean width:</p>
-              <p>
-                {predictionResult.FP_mean_width} {unit}
-              </p>
-              <p>FP widths:</p>
-              {showFullFPList ? (
-                <p className="text-wrap">
-                  {fpwidthsWrappable} {unit}{" "}
-                  <span
-                    className="font-semibold hover:underline"
-                    onClick={() => setShowFullFPList(!showFullFPList)}
+          <div className="flex flex-col gap-y-2">
+            <div className="items-start">
+              <div className="flex flex-row">
+                <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
+                  <p>Original image:</p>
+                  <p className="text-gray-500 mt-1 mb-2">{predictionResult.image_id}</p>
+                  <img
+                    src={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
+                  />
+                                <a
+                    href={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
+                    download
                   >
-                    (truncate)
-                  </span>
-                </p>
-              ) : (
-                <div className="flex flex-row">
-                  <span className="line-clamp-1">
-                    {fpwidthsWrappable} {unit}
-                  </span>
-                  <span
-                    className="font-semibold hover:underline"
-                    onClick={() => setShowFullFPList(!showFullFPList)}
+                    <div className="flex flex-col items-center mt-4">
+                      <button className="btn">
+                        Download original
+                      </button>
+                    </div>
+                  </a>
+                </div>  
+                <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
+                  <p>GBM and FP predictions:</p>
+                  <p className="text-gray-500 mt-1 mb-2">{predictionResult.image_id}</p>
+                  <img
+                    src={`/predictionresults/masks/${predictionResult.image_id}.${predictionResult.measurement_mask_ext}`}
+                  />
+                  <a
+                    href={`/predictionresults/masks/${predictionResult.image_id}.${predictionResult.measurement_mask_ext}`}
+                    download
                   >
-                    (expand)
-                  </span>
+                    <div className="flex flex-col items-center mt-4">
+                      <button className="btn">
+                        Download mask
+                      </button>
+                    </div>
+                  </a>
                 </div>
-              )}
+              </div>
+              <div className="text-sm">
+                <p className="mt-2">Image ID:</p>
+                <p className="text-sm text-gray-500 mb-2">{predictionResult.image_id}</p>
+                <p>Pixel size:</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {predictionResult.pixel_size} {unit}
+                </p>
+                <p>Skeleton length:</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {predictionResult.skeleton_length} {unit}
+                </p>
+                <p>Area:</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {predictionResult.area} sq. {unit}
+                </p>
+                <p>GBM mean width:</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {predictionResult.GBM_mean_width} {unit}
+                </p>
+                <p>FP number:</p>
+                <p className="text-sm text-gray-500 mb-2">{predictionResult.FP_num}</p>
+                <p>FP mean width:</p>
+                <p className="text-sm text-gray-500 mb-2">
+                  {predictionResult.FP_mean_width} {unit}
+                </p>
+                <p>FP widths:</p>
+                <p className="text-sm mb-2">
+                  {showFullFPList ? (
+                    <p className="text-wrap">
+                      {fpwidthsWrappable} {unit}{" "}
+                      <span
+                        className="font-semibold hover:underline cursor-pointer pl-1"
+                        onClick={() => setShowFullFPList(!showFullFPList)}
+                        style={{ color: 'rgba(55,88,250,255)' }}
+                      >
+                        (truncate)
+                      </span>
+                    </p>
+                  ) : (
+                    <div className="flex flex-row">
+                      <span className="line-clamp-1">
+                        {fpwidthsWrappable} {unit}
+                      </span>
+                      <span
+                        className="font-bold hover:underline cursor-pointer pl-1"
+                        onClick={() => setShowFullFPList(!showFullFPList)}
+                        style={{ color: 'rgba(55,88,250,255)' }}
+                      >
+                        (expand)
+                      </span>
+                    </div>
+                  )}
+                </p>
+              </div>
             </div>
-            <a
-              href={`/predictionresults/widthinfojsons/${predictionResult.image_id}.json`}
-              download
-            >
-              <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
-                Download result JSON
-              </button>
-            </a>
-
-            <div className="grid grid-cols-2">
-              <p>Original image:</p>
-              <p>GBM and FP predictions:</p>
-              <img
-                src={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
-              />
-              <img
-                src={`/predictionresults/masks/${predictionResult.image_id}.${predictionResult.measurement_mask_ext}`}
-              />
+            <div className="items-center">
               <a
-                href={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
+                href={`/predictionresults/widthinfojsons/${predictionResult.image_id}.json`}
                 download
               >
-                <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
-                  Download original
-                </button>
-              </a>
-              <a
-                href={`/predictionresults/masks/${predictionResult.image_id}.${predictionResult.measurement_mask_ext}`}
-                download
-              >
-                <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
-                  Download mask
-                </button>
+                <div className="flex flex-col items-center pb-2">
+                  <button className="btn">
+                    Download result JSON
+                  </button>
+                </div>
               </a>
             </div>
           </div>
@@ -428,13 +447,19 @@ function RunPredictionTab({ currSelectedFile }) {
     }
 
     return (
-      <div className="flex space-x-4">
-        <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
-          <RunPredictForm />
-        </div>
-        <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
-          <FieldsOrMessage />
-        </div>
+      <div className="space-y-4">
+        {predictionResult ? (
+            <FieldsOrMessage />
+        ) : (
+          <div className="flex space-x-4">
+            <div className="w-2/5 bg-white p-4 rounded-lg shadow-md">
+              <RunPredictForm />
+            </div>
+            <div className="w-3/5 bg-white p-4 rounded-lg shadow-md">
+              <FieldsOrMessage />
+            </div>
+          </div>
+        )}
       </div>
     );
   }

@@ -88,7 +88,7 @@ input[type="file"] {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    max-width: 300px;
+    max-width: 250px;
 }
 
 .delete-message {
