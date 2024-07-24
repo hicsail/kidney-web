@@ -338,7 +338,7 @@ function RunPredictionTab({ currSelectedFile }) {
         return (
           <div className="flex flex-col gap-y-2">
             <div className="items-start">
-              <div className="flex flex-row">
+              <div className="flex flex-row space-x-4">
                 <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
                   <p>Original image:</p>
                   <p className="text-gray-500 mt-1 mb-2">{predictionResult.image_id}</p>

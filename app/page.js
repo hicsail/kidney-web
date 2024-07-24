@@ -17,6 +17,7 @@ function Greeting({ user }) {
             "/?projectId=" +
             process.env.AUTH_PROJECTID
           }
+          className="pt-10"
         >
           <button className="btn px-4 py-1 rounded-full border border-black hover:text-white hover:bg-black">
             Log in with SAIL test auth
