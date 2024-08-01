@@ -20,7 +20,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   const totalPages = Math.ceil(files.length / itemsPerPage);
 
@@ -400,7 +400,7 @@ function RunPredictionTab({ currSelectedFile }) {
                   {predictionResult.FP_mean_width} {unit}
                 </p>
                 <p>FP widths:</p>
-                <p className="text-sm mb-2">
+                <p className="text-sm text-gray-500 mb-2">
                   {showFullFPList ? (
                     <p className="text-wrap">
                       {fpwidthsWrappable} {unit}{" "}
