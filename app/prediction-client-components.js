@@ -9,7 +9,7 @@ import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
 import '@/app/style.css';
 
 function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
-  const [currentPath, setCurrentPath] = useState(""); // New state for current path
+  const [currentPath, setCurrentPath] = useState("inputs/"); // New state for current path
   const [folderContents, setFolderContents] = useState([]); // Changed state to hold current folder contents
   const [newFolderName, setNewFolderName] = useState(""); // New state for the new folder name input
   const [uploadFormState, uploadFormAction] = useFormState(uploadFileFromForm, {
@@ -34,28 +34,39 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     setCurrentPath((prevPath) => `${prevPath}${folderName}/`); // Navigate into folder
   };
 
+  const handleBreadcrumbClick = (index) => {
+    setCurrentPath((prevPath) => {
+      const parts = prevPath.split("/").filter(Boolean);
+      return parts.slice(0, index + 1).join("/") + "/";
+    });
+    setCurrSelectedFile(undefined); // Reset selected file
+  };
+
   const handleBackClick = () => {
     setCurrentPath((prevPath) => {
       const parts = prevPath.split("/").filter(Boolean);
       parts.pop();
-      return parts.length > 0 ? `${parts.join("/")}/` : "";
+      return parts.length > 1 ? `${parts.join("/")}/` : "inputs/";
     }); // Navigate back to parent folder
+    setCurrSelectedFile(undefined); // Reset selected file
   };
 
   const handleCreateFolder = async () => {
     if (newFolderName.trim() === "") return;
-    const result = await createFolder(`${currentPath}${newFolderName}`); // Create new folder
+    const result = await createFolder(`inputs/${newFolderName}/`); // Create new folder
     if (result.success) {
-      setFolderContents([...folderContents, { Key: `${currentPath}${newFolderName}/` }]); // Update folder contents with new folder
+      setFolderContents([...folderContents, { Key: `inputs/${newFolderName}` }]); // Update folder contents with new folder
       setNewFolderName(""); // Clear input
     }
   };
 
   const handleDeleteFolder = async (folderName) => {
-    const result = await deleteFolder(`${currentPath}${folderName}/`); // Delete folder
+    const result = await deleteFolder(`inputs/${folderName}/`); // Delete folder
     if (result.success) {
-      setFolderContents(folderContents.filter((item) => item.Key !== `${currentPath}${folderName}/`)); // Update folder contents after deletion
+      console.log("sucess deleteion")
+      setFolderContents(folderContents.filter((item) => item.Prefix !== `inputs/${folderName}/`)); // Update folder contents after deletion
     }
+    console.log("no deleteion")
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,7 +75,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
   const totalPages = Math.ceil(folderContents.length / itemsPerPage);
 
   const paginatedFiles = folderContents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
+  console.log("paginatedFiles",paginatedFiles)
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
@@ -116,6 +127,20 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
             Create
           </button>
         </div>
+        <nav className="text-sm text-gray-600 mb-2">
+        <span className="mr-2">Current Path:</span>
+          {currentPath.split("/").filter(Boolean).map((part, index) => (
+            <span key={index}>
+              <button
+                className="text-blue-600 hover:underline"
+                onClick={() => handleBreadcrumbClick(index)}
+              >
+                {part}
+              </button>
+              {index < currentPath.split("/").filter(Boolean).length - 1 && " / "}
+            </span>
+          ))}
+        </nav>
         <ul className="divide-y divide-slate-200">
           {folderContents.length === 0 ? (
             <li className="py-2.5 px-5">No files or folders.</li>
@@ -123,19 +148,18 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
             paginatedFiles.map((item, index) => (
               <li
                 key={item.Key || index} // Ensure each item has a unique key
-                onClick={() => item.Key && item.Key.endsWith("/") ? handleFolderClick(removeFilepathPrefix(item.Key)) : setCurrSelectedFile(item.Key)}
+                onClick={() => item.Key ? setCurrSelectedFile(item.Key) : handleFolderClick(removeFilepathPrefix(item.Prefix))}
                 className={
-                  "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-200" +
-                  (item.Key == currSelectedFile ? " bg-gray-00" : "")
+                  "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-200"
                 }
               >
                 <div className="file-name">
-                  <span style={{ color: item.Key && item.Key.endsWith("/") ? "blue" : "rgba(83, 172, 255, 1)" }}>
-                    {item.Key ? removeFilepathPrefix(item.Key) : ''}
+                  <span style={{ color: item.Key ? "blue" : "rgba(83, 172, 255, 1)" }}>
+                    {item.Key ? removeFilepathPrefix(item.Key) : removeFilepathPrefix(item.Prefix)}
                   </span>
                 </div>
-                {item.Key && item.Key.endsWith("/") ? (
-                  <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(removeFilepathPrefix(item.Key)); }}>Delete</button>
+                {item.Prefix ? (
+                  <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(removeFilepathPrefix(item.Prefix)); }} className="delete-btn">Delete</button>
                 ) : (
                   <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFormAction} /> // Pass the folders path
                 )}
@@ -143,10 +167,12 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
             ))
           )}
         </ul>
-        {currentPath && (
-          <button onClick={handleBackClick} className="text-blue-600">
-            Back
-          </button>
+        {currentPath !== "inputs/" && (
+          <div className="justify-center flex">
+            <button onClick={handleBackClick} className="btn w-40">
+              Back
+            </button>
+          </div>
         )}
         {deleteFormState.message && (
           <div>
@@ -532,4 +558,3 @@ function EmptyTab() {
 }
 
 export default UserFiles;
-
