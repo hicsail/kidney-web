@@ -35,9 +35,10 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
   DeleteObjectCommand,
+  DeleteObjectsCommand,
   NoSuchKey,
 } from "@aws-sdk/client-s3";
-
+import { Upload } from "@aws-sdk/lib-storage";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/app/actions.js";
 import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
@@ -62,7 +63,7 @@ export async function GetUserObject(key) {
       new GetObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
         Key: key,
-      }),
+      })
     );
     return await resp.Body.transformToByteArray();
   } catch (e) {
@@ -70,33 +71,105 @@ export async function GetUserObject(key) {
       return null;
     } else {
       console.log(e);
-      // will be indistinguishable from 404 downstream.
-      // if need arises, throw e instead and catch in route handlers.
       return null;
     }
   }
 }
 
-export async function ListUserDirContents() {
+export async function ListUserDirContents(path = "") {
   const user = await getCurrentUser();
   if (!user) {
     return null;
   }
   const userdir = user.id;
 
-  const objects = await client.send(
-    new ListObjectsV2Command({
-      Bucket: process.env.S3_BUCKET_NAME,
-      Prefix: userdir + "/inputs",
-    }),
-  );
-  if (objects.KeyCount == 0) {
+  const prefix = `${userdir}/${path}`;
+
+  try {
+    const objects = await client.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Prefix: prefix,
+        Delimiter: "/",
+      })
+    );
+
+    const contents = objects.Contents || [];
+    const commonPrefixes = objects.CommonPrefixes || [];
+
+    if (objects.KeyCount === 0) {
+      return [];
+    }
+    return contents.concat(commonPrefixes);
+  } catch (e) {
+    console.log(e);
     return [];
   }
-  return objects.Contents;
 }
 
-// this server action is passed to useFormState and turns into a formAction
+export async function createFolder(folderPath) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { success: false, message: "Please log in" };
+  }
+  const userdir = user.id;
+
+  const folderKey = `${userdir}/${folderPath}/`;
+
+  try {
+    await client.send(
+      new PutObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: folderKey,
+        Body: "",
+      })
+    );
+    revalidatePath("/");
+    return { success: true, message: "Folder created successfully" };
+  } catch (e) {
+    console.log(e);
+    return { success: false, message: "Failed to create folder: " + e.message };
+  }
+}
+
+export async function deleteFolder(folderPath) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return { success: false, message: "Please log in" };
+  }
+  const userdir = user.id;
+
+  const folderKey = `${userdir}/${folderPath}`;
+
+  try {
+    const listObjectsResp = await client.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Prefix: folderKey,
+      })
+    );
+
+    const deleteObjects = listObjectsResp.Contents.map((object) => ({
+      Key: object.Key,
+    }));
+
+    if (deleteObjects.length > 0) {
+      await client.send(
+        new DeleteObjectsCommand({
+          Bucket: process.env.S3_BUCKET_NAME,
+          Delete: { Objects: deleteObjects },
+        })
+      );
+    }
+
+    revalidatePath("/");
+    return { success: true, message: "Folder deleted successfully" };
+  } catch (e) {
+    console.log(e);
+    return { success: false, message: "Failed to delete folder: " + e.message };
+  }
+}
+
 export async function uploadFileFromForm(prevState, formData) {
   const user = await getCurrentUser();
   if (!user) {
@@ -104,76 +177,77 @@ export async function uploadFileFromForm(prevState, formData) {
   }
   const userdir = user.id;
 
-  // NB: At least on S3, you don't need to create folders; folders are just bits of filepaths;
-  // just create the file, and intermediate directories will get created.
-
+  const folders = formData.get("folders") || ""; // Get the folders path from the form data
   let attemptCount = 0;
   let successCount = 0;
-  // Text, image, zip archive OK; directories not OK.
+
   for (const f of formData.getAll("file")) {
-    const resp = await client.send(
-      new PutObjectCommand({
-        Bucket: process.env.S3_BUCKET_NAME,
-        Key: `${userdir}/inputs/${f["name"]}`,
-        Body: await f.arrayBuffer(),
-      }),
-    );
-    attemptCount += 1;
-    if (resp.$metadata.httpStatusCode == "200") {
+    try {
+      const upload = new Upload({
+        client,
+        params: {
+          Bucket: process.env.S3_BUCKET_NAME,
+          Key: `${userdir}/inputs/${folders}${f.name}`,
+          Body: f.stream(),
+        },
+      });
+
+      await upload.done();
       successCount += 1;
+    } catch (e) {
+      console.error("Failed to upload file", f.name, e);
     }
+
+    attemptCount += 1;
   }
+
   revalidatePath("/");
 
   return {
-    success: successCount == attemptCount,
+    success: successCount === attemptCount,
     message: `${successCount} of ${attemptCount} files successfully uploaded.`,
   };
 }
 
-// this server action is passed to useFormState and turns into a formAction
+
 export async function deleteFileFromForm(prevState, formData) {
   const user = await getCurrentUser();
   if (!user) {
     return { success: false, message: "Please log in" };
   }
   const userdir = user.id;
-
+  
+  const folders = formData.get("folders"); // Get the folders path from the form data
   const unprefixedFilename = removeFilepathPrefix(formData.get("filename"));
-  const inputfilename = `${userdir}/inputs/${unprefixedFilename}`;
-  const outmaskfilename = `${userdir}/measurementmasks/${unprefixedFilename}`;
-  const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
-
-  // Delete associated output files; terminate early if failure
+  
+  // Construct the paths to the files in the different directories, including the folders path
+  const inputfilename = `${userdir}/inputs/${folders}/${unprefixedFilename}`;
+  const outmaskfilename = `${userdir}/measurementmasks/${folders}/${unprefixedFilename}`;
+  const widthjsonfilename = `${userdir}/widthinfojsons/${folders}/${changeExtension(unprefixedFilename, "json")}`;
+  
   for (const k of [outmaskfilename, widthjsonfilename]) {
     try {
-      const resp = await client.send(
+      await client.send(
         new DeleteObjectCommand({
           Bucket: process.env.S3_BUCKET_NAME,
           Key: k,
-        }),
+        })
       );
-      // This will succeed and return 204 even if file was not found, which is good.
     } catch (e) {
-      // Whereas this is found but failed to delete - not good.
       console.log(e);
       return {
         success: false,
-        message:
-          "Failed to delete one or more associated output files: " +
-          e +
-          "Aborting delete operation.",
+        message: "Failed to delete one or more associated output files: " + e + " Aborting delete operation.",
       };
     }
   }
 
-  // Then delete original input file
   try {
-    const resp = await client.send(
+    await client.send(
       new DeleteObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
         Key: inputfilename,
-      }),
+      })
     );
   } catch (e) {
     console.log(e);

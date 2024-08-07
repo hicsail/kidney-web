@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import { removeFilepathPrefix } from "@/app/utils.js"; // Ensure this import is present
 import '@/app/style.css';
 
 function SubmitButton({ text, width }) {
@@ -31,15 +32,38 @@ function DeleteButton({ text, width }) {
   );
 }
 
-export function UploadFileForm({ uploadFormAction }) {
+export function UploadFileForm({ uploadFormAction, folderContents, selectedFolder, setSelectedFolder }) {
   return (
-    <form action={uploadFormAction}>
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      if (selectedFolder) {
+        formData.append("folders", selectedFolder); // Append folders to form data
+      }
+      uploadFormAction(formData);
+    }}>
       <label htmlFor="file" className="text-lg font-semibold">
         Upload files
       </label>
       <p className="text-sm text-gray-500 mt-1 pt-[0.5vh]">Upload one or more files.</p>
       <div className="mt-2 pt-[1.5vh] pl-[0.7vw]">
-          <input type="file" id="file" name="file" multiple required />
+        <input type="file" id="file" name="file" multiple required />
+      </div>
+      <div className="flex flex-row pt-6">
+        <label htmlFor="folder-select" className="px-2 py-1">Upload to:</label>
+        <select
+          id="folder-select"
+          value={selectedFolder}
+          onChange={(e) => setSelectedFolder(e.target.value)}
+          className="flex-1 px-2 py-1 rounded border border-gray-300"
+        >
+          <option value="">Root</option>
+          {folderContents
+            .filter(item => item.Key && item.Key.endsWith("/"))
+            .map((item, index) => (
+              <option key={index} value={item.Key}>{removeFilepathPrefix(item.Key)}</option>
+            ))}
+        </select>
       </div>
       <div className="mt-2 pt-[1.6vh]">
         <SubmitButton text="Upload" width="100%" />
@@ -48,10 +72,17 @@ export function UploadFileForm({ uploadFormAction }) {
   );
 }
 
-export function DeleteFileForm({ filename, deleteFormAction }) {
+export function DeleteFileForm({ filename, folders, deleteFormAction }) {
   return (
-    <form action={deleteFormAction}>
-      <input type="hidden" name="filename" value={filename} required />
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        formData.append("filename", filename);
+        formData.append("folders", folders);
+        deleteFormAction(formData);
+      }}
+    >
       <DeleteButton text="Delete" />
     </form>
   );

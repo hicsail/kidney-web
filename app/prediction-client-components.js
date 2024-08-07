@@ -4,12 +4,14 @@ import { useState, useEffect } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
-import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
+import { uploadFileFromForm, deleteFileFromForm, ListUserDirContents, createFolder, deleteFolder } from "@/app/s3.js";
 import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
-import { useForm, Controller } from 'react-hook-form';
 import '@/app/style.css';
 
-function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
+function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
+  const [currentPath, setCurrentPath] = useState(""); // New state for current path
+  const [folderContents, setFolderContents] = useState([]); // Changed state to hold current folder contents
+  const [newFolderName, setNewFolderName] = useState(""); // New state for the new folder name input
   const [uploadFormState, uploadFormAction] = useFormState(uploadFileFromForm, {
     success: null,
     message: null,
@@ -18,13 +20,50 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
     success: null,
     message: null,
   });
+  const [selectedFolder, setSelectedFolder] = useState(""); // New state for the selected folder
+
+  useEffect(() => {
+    async function fetchFolderContents() {
+      const contents = await ListUserDirContents(currentPath); // Fetch contents of the current path
+      setFolderContents(contents); // Update folder contents
+    }
+    fetchFolderContents();
+  }, [currentPath]); // Re-fetch contents when current path changes
+
+  const handleFolderClick = (folderName) => {
+    setCurrentPath((prevPath) => `${prevPath}${folderName}/`); // Navigate into folder
+  };
+
+  const handleBackClick = () => {
+    setCurrentPath((prevPath) => {
+      const parts = prevPath.split("/").filter(Boolean);
+      parts.pop();
+      return parts.length > 0 ? `${parts.join("/")}/` : "";
+    }); // Navigate back to parent folder
+  };
+
+  const handleCreateFolder = async () => {
+    if (newFolderName.trim() === "") return;
+    const result = await createFolder(`${currentPath}${newFolderName}`); // Create new folder
+    if (result.success) {
+      setFolderContents([...folderContents, { Key: `${currentPath}${newFolderName}/` }]); // Update folder contents with new folder
+      setNewFolderName(""); // Clear input
+    }
+  };
+
+  const handleDeleteFolder = async (folderName) => {
+    const result = await deleteFolder(`${currentPath}${folderName}/`); // Delete folder
+    if (result.success) {
+      setFolderContents(folderContents.filter((item) => item.Key !== `${currentPath}${folderName}/`)); // Update folder contents after deletion
+    }
+  };
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const totalPages = Math.ceil(files.length / itemsPerPage);
+  const totalPages = Math.ceil(folderContents.length / itemsPerPage);
 
-  const paginatedFiles = files.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const paginatedFiles = folderContents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -38,10 +77,22 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
     setCurrentPage(pageNumber);
   };
 
+  const handleUpload = async (formData) => {
+    if (selectedFolder) {
+      formData.set("folder", selectedFolder);
+    }
+    await uploadFormAction(formData);
+  };
+
   return (
     <div className="h-full max-w-md">
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md">
-        <UploadFileForm uploadFormAction={uploadFormAction} />
+        <UploadFileForm
+          uploadFormAction={handleUpload}
+          folderContents={folderContents}
+          selectedFolder={selectedFolder}
+          setSelectedFolder={setSelectedFolder}
+        />
         {uploadFormState.message && (
           <p className={uploadFormState.success ? "text-green-600" : "text-red-600"}>
             {uploadFormState.message}
@@ -49,73 +100,86 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
         )}
       </div>
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md mt-6 mb-6">
-        <h1 className="text-lg font-semibold">Select a File</h1>
-        <div className="">
-          <p className="text-sm text-gray-500 delete-message">
-            Select a file to run a segmentation prediction, classification, or generate a report. You can only select one file at a time.
-          </p>
+        <h1 className="text-lg font-semibold">Select a File or Folder</h1>
+        <div className="flex flex-row space-x-2">
+          <input
+            type="text"
+            placeholder="New folder name"
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+            className="flex-1 px-2 py-1 rounded border border-gray-300"
+          />
+          <button
+            onClick={handleCreateFolder}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Create
+          </button>
         </div>
-        <div className="">
-          <ul className="divide-y divide-slate-200">
-            <li className="flex flex-row py-3.5 px-5 items-center justify-between bg-gray-200 rounded-t-lg">
-              <span>File name</span>
-              <span>Actions</span>
-            </li>
-            {files.length === 0 ? (
-              <li className="py-2.5 px-5">You have no uploaded files yet.</li>
-            ) : (
-              paginatedFiles.map((file) => (
-                <li
-                  key={file["Key"]}
-                  onClick={() => setCurrSelectedFile(file["Key"])}
-                  className={
-                    "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-100" +
-                    (file["Key"] === currSelectedFile ? " bg-gray-100" : "")
-                  }
-                >
-                  <div className="file-name">
-                    <span style={{ color: 'rgba(83, 172, 255, 1)' }}>
-                      {removeFilepathPrefix(file["Key"])}
-                    </span>
-                  </div>
-                  <DeleteFileForm filename={file["Key"]} deleteFormAction={deleteFormAction} />
-                </li>
-              ))
-            )}
-          </ul>
-          <div className="flex justify-center items-center mt-4 mb-4 space-x-1">
-            <button
-              onClick={handlePreviousPage}
-              disabled={currentPage === 1}
-              className={`pagination-button ${currentPage === 1 ? 'disabled' : ''}`}
-            >
-              &lt;
-            </button>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => handlePageClick(index + 1)}
-                className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
+        <ul className="divide-y divide-slate-200">
+          {folderContents.length === 0 ? (
+            <li className="py-2.5 px-5">No files or folders.</li>
+          ) : (
+            paginatedFiles.map((item, index) => (
+              <li
+                key={item.Key || index} // Ensure each item has a unique key
+                onClick={() => item.Key && item.Key.endsWith("/") ? handleFolderClick(removeFilepathPrefix(item.Key)) : setCurrSelectedFile(item.Key)}
+                className={
+                  "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-200" +
+                  (item.Key == currSelectedFile ? " bg-gray-00" : "")
+                }
               >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-              className={`pagination-button ${currentPage === totalPages ? 'disabled' : ''}`}
-            >
-              &gt;
-            </button>
-          </div>
-          {deleteFormState.message && (
-            <div>
-              <p className={deleteFormState.success ? "text-green-600 + delete-message" : "text-red-600 + delete-message"}>
-                {deleteFormState.message}
-              </p>
-            </div>
+                <div className="file-name">
+                  <span style={{ color: item.Key && item.Key.endsWith("/") ? "blue" : "rgba(83, 172, 255, 1)" }}>
+                    {item.Key ? removeFilepathPrefix(item.Key) : ''}
+                  </span>
+                </div>
+                {item.Key && item.Key.endsWith("/") ? (
+                  <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(removeFilepathPrefix(item.Key)); }}>Delete</button>
+                ) : (
+                  <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFormAction} /> // Pass the folders path
+                )}
+              </li>
+            ))
           )}
-        </div>
+        </ul>
+        {currentPath && (
+          <button onClick={handleBackClick} className="text-blue-600">
+            Back
+          </button>
+        )}
+        {deleteFormState.message && (
+          <div>
+            <p className={deleteFormState.success ? "text-green-600" : "text-red-600"}>
+              {deleteFormState.message}
+            </p>
+          </div>
+        )}
+      </div>
+      <div className="flex justify-center items-center mt-4 mb-4 space-x-1">
+        <button
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className={`pagination-button ${currentPage === 1 ? 'disabled' : ''}`}
+        >
+          &lt;
+        </button>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => handlePageClick(index + 1)}
+            className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className={`pagination-button ${currentPage === totalPages ? 'disabled' : ''}`}
+        >
+          &gt;
+        </button>
       </div>
     </div>
   );
@@ -146,17 +210,17 @@ export function GBMMeasurementInterface({ user, files }) {
         />
       </div>
       <div className="flex-1">
-          <div className="flex space-x-0">
-            {tabs.map((tab, index) => (
-              <button
-                key={index}
-                className={`tab-button px-4 py-2 rounded-lg ${currentTab === index ? 'bg-white border border-b-0 active' : 'bg-gray-200'}`}
-                onClick={() => setCurrentTab(index)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex space-x-0">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              className={`tab-button px-4 py-2 rounded-lg ${currentTab === index ? 'bg-white border border-b-0 active' : 'bg-gray-200'}`}
+              onClick={() => setCurrentTab(index)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
         <div className="bg-white p-4 rounded-lg shadow-md">
           {tabs[currentTab].content}
         </div>
@@ -207,11 +271,11 @@ function RunPredictionTab({ currSelectedFile }) {
       <form action={formAction}>
         <h1 className="text-lg font-semibold">Selected File:</h1>
         <div className="">
-        {currSelectedFile ? (
-          <p className="text-sm text-gray-500">{removeFilepathPrefix(currSelectedFile)}</p>
-        ) : (
-          <p className="text-sm text-gray-500">Click on a file to run a prediction.</p>
-        )}
+          {currSelectedFile ? (
+            <p className="text-sm text-gray-500">{removeFilepathPrefix(currSelectedFile)}</p>
+          ) : (
+            <p className="text-sm text-gray-500">Click on a file to run a prediction.</p>
+          )}
         </div>
         <input
           type="hidden"
@@ -316,14 +380,6 @@ function RunPredictionTab({ currSelectedFile }) {
               src={`/predictionresults/inputs/${removeFilepathPrefix(currSelectedFile)}`}
               className="max-w-full max-h-full mt-2"
             />
-            {/* <a
-              href={`/predictionresults/inputs/${removeFilepathPrefix(currSelectedFile)}`}
-              download
-            >
-              <button className="px-4 py-1 rounded-full bg-slate-200 border border-black hover:text-white hover:bg-slate-600">
-                Download original
-              </button>
-            </a> */}
           </div>
         );
       } else {
@@ -345,7 +401,7 @@ function RunPredictionTab({ currSelectedFile }) {
                   <img
                     src={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
                   />
-                                <a
+                  <a
                     href={`/predictionresults/inputs/${predictionResult.image_id}.${predictionResult.input_img_ext}`}
                     download
                   >
@@ -355,7 +411,7 @@ function RunPredictionTab({ currSelectedFile }) {
                       </button>
                     </div>
                   </a>
-                </div>  
+                </div>
                 <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
                   <p>GBM and FP predictions:</p>
                   <p className="text-gray-500 mt-1 mb-2">{predictionResult.image_id}</p>
@@ -474,3 +530,6 @@ function RunPredictionTab({ currSelectedFile }) {
 function EmptyTab() {
   return <div>Content for this tab is not yet implemented.</div>;
 }
+
+export default UserFiles;
+
