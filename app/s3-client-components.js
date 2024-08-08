@@ -59,9 +59,9 @@ export function UploadFileForm({ uploadFormAction, folderContents, selectedFolde
         >
           <option value="">Root</option>
           {folderContents
-            .filter(item => item.Key && item.Key.endsWith("/"))
+            .filter(item => item.Prefix && item.Prefix.endsWith("/"))
             .map((item, index) => (
-              <option key={index} value={item.Key}>{removeFilepathPrefix(item.Key)}</option>
+              <option key={index} value={removeFilepathPrefix(item.Prefix)+'/'}>{removeFilepathPrefix(item.Prefix)}</option>
             ))}
         </select>
       </div>
@@ -73,6 +73,8 @@ export function UploadFileForm({ uploadFormAction, folderContents, selectedFolde
 }
 
 export function DeleteFileForm({ filename, folders, deleteFormAction }) {
+  console.log("yoyoyoy my folder is", folders)
+  console.log("yoyoyoy my file is", filename)
   return (
     <form
       onSubmit={(e) => {

@@ -31,7 +31,12 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
   }, [currentPath]); // Re-fetch contents when current path changes
 
   const handleFolderClick = (folderName) => {
-    setCurrentPath((prevPath) => `${prevPath}${folderName}/`); // Navigate into folder
+    setCurrentPath((prevPath) => {
+      const newPath = `${prevPath}${folderName}/`;
+      console.log('New path being set:', newPath);
+      setCurrentPage(1)
+      return newPath;
+    });
   };
 
   const handleBreadcrumbClick = (index) => {
@@ -53,20 +58,32 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
 
   const handleCreateFolder = async () => {
     if (newFolderName.trim() === "") return;
-    const result = await createFolder(`inputs/${newFolderName}/`); // Create new folder
+    const fullPath = `${currentPath}${newFolderName}/`;
+    console.log('full path by craetion', fullPath)
+    const result = await createFolder(fullPath);
     if (result.success) {
-      setFolderContents([...folderContents, { Key: `inputs/${newFolderName}` }]); // Update folder contents with new folder
-      setNewFolderName(""); // Clear input
+      setFolderContents([...folderContents, { Prefix: fullPath }]);
+      setNewFolderName("");
+
+    // Fetch the contents of the newly created folder
+    const contents = await ListUserDirContents(fullPath);
+
+    // Delete all contents in the newly created folder (if any)
+    for (const item of contents) {
+      if (item.Key) {
+        await deleteFileFromForm({ filename: item.Key });
+      } else if (item.Prefix) {
+        await deleteFolder(item.Prefix);
+      }
+    }
     }
   };
 
   const handleDeleteFolder = async (folderName) => {
     const result = await deleteFolder(`inputs/${folderName}/`); // Delete folder
     if (result.success) {
-      console.log("sucess deleteion")
       setFolderContents(folderContents.filter((item) => item.Prefix !== `inputs/${folderName}/`)); // Update folder contents after deletion
     }
-    console.log("no deleteion")
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,7 +92,8 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
   const totalPages = Math.ceil(folderContents.length / itemsPerPage);
 
   const paginatedFiles = folderContents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  console.log("paginatedFiles",paginatedFiles)
+  console.log("folder contents", folderContents)
+  
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };

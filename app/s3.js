@@ -218,6 +218,7 @@ export async function deleteFileFromForm(prevState, formData) {
   const userdir = user.id;
   
   const folders = formData.get("folders"); // Get the folders path from the form data
+  console.log("myyyyyy folders from form", folders)
   const unprefixedFilename = removeFilepathPrefix(formData.get("filename"));
   
   // Construct the paths to the files in the different directories, including the folders path
