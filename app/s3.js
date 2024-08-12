@@ -113,8 +113,8 @@ export async function createFolder(folderPath) {
     return { success: false, message: "Please log in" };
   }
   const userdir = user.id;
-
-  const folderKey = `${userdir}/${folderPath}/`;
+  const folderKey = `${userdir}/${folderPath}`;
+  //console.log("create folder folderKey:", folderKey)
 
   try {
     await client.send(

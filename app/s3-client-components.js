@@ -73,8 +73,6 @@ export function UploadFileForm({ uploadFormAction, folderContents, selectedFolde
 }
 
 export function DeleteFileForm({ filename, folders, deleteFormAction }) {
-  console.log("yoyoyoy my folder is", folders)
-  console.log("yoyoyoy my file is", filename)
   return (
     <form
       onSubmit={(e) => {

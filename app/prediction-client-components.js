@@ -21,14 +21,28 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     message: null,
   });
   const [selectedFolder, setSelectedFolder] = useState(""); // New state for the selected folder
+  console.log("current path:",currentPath)
 
   useEffect(() => {
     async function fetchFolderContents() {
       const contents = await ListUserDirContents(currentPath); // Fetch contents of the current path
-      setFolderContents(contents); // Update folder contents
+
+      const filteredContents = contents.filter(item => {
+        if (!item.Key) return true; // Keep items that don't have a 'Key'
+        
+        // Extract the last part of 'item.Key' and 'currentPath'
+        const itemKeyLastPart = item.Key.split("/").filter(Boolean).pop(); // Filter(Boolean) removes empty strings
+        const currentPathLastPart = currentPath.split("/").filter(Boolean).pop();
+  
+        // Compare the last parts and filter out if they are the same
+        return itemKeyLastPart !== currentPathLastPart;
+      });
+
+      setFolderContents(filteredContents); // Update folder contents
     }
     fetchFolderContents();
   }, [currentPath]); // Re-fetch contents when current path changes
+  //console.log("folder contents 32", folderContents)
 
   const handleFolderClick = (folderName) => {
     setCurrentPath((prevPath) => {
@@ -59,7 +73,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
   const handleCreateFolder = async () => {
     if (newFolderName.trim() === "") return;
     const fullPath = `${currentPath}${newFolderName}/`;
-    console.log('full path by craetion', fullPath)
+    //console.log('full path by craetion', fullPath)
     const result = await createFolder(fullPath);
     if (result.success) {
       setFolderContents([...folderContents, { Prefix: fullPath }]);
@@ -93,6 +107,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
 
   const paginatedFiles = folderContents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   console.log("folder contents", folderContents)
+  console.log(currentPage)
   
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -220,7 +235,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
         <button
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
-          className={`pagination-button ${currentPage === totalPages ? 'disabled' : ''}`}
+          className={`pagination-button ${currentPage >= totalPages ? 'disabled' : ''}`}
         >
           &gt;
         </button>
