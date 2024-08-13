@@ -211,7 +211,7 @@ export async function uploadFileFromForm(prevState, formData) {
 
 
 export async function deleteFileFromForm(filename, folders) {
-  console.log("deleteFileFromForm is being called")
+  console.log("deleteFileFromForm is being called", filename, folders)
   const user = await getCurrentUser();
   if (!user) {
     return { success: false, message: "Please log in" };
@@ -223,9 +223,10 @@ export async function deleteFileFromForm(filename, folders) {
   // Construct the paths to the files in the different directories, including the folders path
   const inputfilename = `${userdir}/${folders}${unprefixedFilename}`;
   const outmaskfilename = `${userdir}/measurementmasks/${unprefixedFilename}`;
-  const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
+  //const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
   
-  for (const k of [outmaskfilename, widthjsonfilename]) {
+  //for (const k of [outmaskfilename, widthjsonfilename]) {
+  for (const k of [outmaskfilename]) {
     try {
       await client.send(
         new DeleteObjectCommand({

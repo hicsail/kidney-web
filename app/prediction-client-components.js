@@ -98,24 +98,6 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     console.log(folderContents)
   };
 
-  const handleFileDelete = async (filename) => {
-    console.log("handleFileDelete is")
-    const result = await deleteFileFromForm(currentPath, filename); // Call the backend deletion function
-  
-    if (result.success) {
-      setFolderContents(
-        folderContents.filter((item) => {
-          if (!item.Key) {
-            return true; // Keep items that don't have a Key
-          }
-          const keyParts = item.Key.split('/').filter(Boolean); // Split and filter out empty strings
-          const lastPart = keyParts[keyParts.length - 1]; // Get the last part which corresponds to the file name
-          return lastPart !== filename; // Compare only the last part
-        })
-      );
-    }
-  };  
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -208,7 +190,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
                 {item.Prefix ? (
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(removeFilepathPrefix(item.Prefix)); }} className="delete-btn">Delete</button>
                 ) : (
-                  <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFormAction} handleFileDelete={handleFileDelete}/>
+                  <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFileFromForm} setFolderContents={setFolderContents} folderContents={folderContents}/>
                 )}
               </li>
             ))

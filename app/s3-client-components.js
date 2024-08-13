@@ -72,17 +72,27 @@ export function UploadFileForm({ uploadFormAction, folderContents, selectedFolde
   );
 }
 
-export function DeleteFileForm({ filename, folders, deleteFormAction, handleFileDelete }) {
-  console.log("DeleteFileForm from s3-client is being called")
+export function DeleteFileForm({ filename, folders, deleteFormAction, setFolderContents, folderContents }) {
+  filename = filename.split('/').filter(Boolean).pop(); 
+  console.log("DeleteFileForm is being called with:", folderContents);
   return (
     <form
       onSubmit={async (e) => { 
         e.preventDefault();
 
         const result = await deleteFormAction(filename, folders); // Directly pass the variables
-        console.log(result)
+        console.log("Delete result:", result);
         if (result.success) {
-          handleFileDelete(filename); // Call the deletion handler to update the state
+          setFolderContents(
+            folderContents.filter((item) => {
+              if (!item.Key) {
+                return true; // Keep items that don't have a Key
+              }
+              const keyParts = item.Key.split('/').filter(Boolean); // Split and filter out empty strings
+              const lastPart = keyParts[keyParts.length - 1]; // Get the last part which corresponds to the file name
+              return lastPart !== filename; // Compare only the last part
+            })
+          );
         }
       }}
     >
@@ -90,3 +100,4 @@ export function DeleteFileForm({ filename, folders, deleteFormAction, handleFile
     </form>
   );
 }
+
