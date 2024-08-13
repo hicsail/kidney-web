@@ -72,15 +72,18 @@ export function UploadFileForm({ uploadFormAction, folderContents, selectedFolde
   );
 }
 
-export function DeleteFileForm({ filename, folders, deleteFormAction }) {
+export function DeleteFileForm({ filename, folders, deleteFormAction, handleFileDelete }) {
+  console.log("DeleteFileForm from s3-client is being called")
   return (
     <form
-      onSubmit={(e) => {
+      onSubmit={async (e) => { 
         e.preventDefault();
-        const formData = new FormData(e.target);
-        formData.append("filename", filename);
-        formData.append("folders", folders);
-        deleteFormAction(formData);
+
+        const result = await deleteFormAction(filename, folders); // Directly pass the variables
+        console.log(result)
+        if (result.success) {
+          handleFileDelete(filename); // Call the deletion handler to update the state
+        }
       }}
     >
       <DeleteButton text="Delete" />

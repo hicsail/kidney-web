@@ -21,7 +21,6 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     message: null,
   });
   const [selectedFolder, setSelectedFolder] = useState(""); // New state for the selected folder
-  console.log("current path:",currentPath)
 
   useEffect(() => {
     async function fetchFolderContents() {
@@ -42,12 +41,10 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     }
     fetchFolderContents();
   }, [currentPath]); // Re-fetch contents when current path changes
-  //console.log("folder contents 32", folderContents)
 
   const handleFolderClick = (folderName) => {
     setCurrentPath((prevPath) => {
       const newPath = `${prevPath}${folderName}/`;
-      console.log('New path being set:', newPath);
       setCurrentPage(1)
       return newPath;
     });
@@ -78,27 +75,46 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     if (result.success) {
       setFolderContents([...folderContents, { Prefix: fullPath }]);
       setNewFolderName("");
-
-    // Fetch the contents of the newly created folder
-    const contents = await ListUserDirContents(fullPath);
-
-    // Delete all contents in the newly created folder (if any)
-    for (const item of contents) {
-      if (item.Key) {
-        await deleteFileFromForm({ filename: item.Key });
-      } else if (item.Prefix) {
-        await deleteFolder(item.Prefix);
-      }
-    }
     }
   };
 
   const handleDeleteFolder = async (folderName) => {
     const result = await deleteFolder(`inputs/${folderName}/`); // Delete folder
+    console.log(result)
     if (result.success) {
-      setFolderContents(folderContents.filter((item) => item.Prefix !== `inputs/${folderName}/`)); // Update folder contents after deletion
+      setFolderContents(
+        folderContents.filter((item) => {
+          if (!item.Prefix) {
+            return true; // Keep items that don't have a Prefix
+          }
+          const prefixParts = item.Prefix.split('/').filter(Boolean); // Split and filter out empty strings
+          const lastPart = prefixParts[prefixParts.length - 1]; // Get the ast part which corresponds to the folder name
+          console.log(item, lastPart)
+          return lastPart !== folderName; // Compare only the last part
+        })
+      );
+      
     }
+    console.log(folderContents)
   };
+
+  const handleFileDelete = async (filename) => {
+    console.log("handleFileDelete is")
+    const result = await deleteFileFromForm(currentPath, filename); // Call the backend deletion function
+  
+    if (result.success) {
+      setFolderContents(
+        folderContents.filter((item) => {
+          if (!item.Key) {
+            return true; // Keep items that don't have a Key
+          }
+          const keyParts = item.Key.split('/').filter(Boolean); // Split and filter out empty strings
+          const lastPart = keyParts[keyParts.length - 1]; // Get the last part which corresponds to the file name
+          return lastPart !== filename; // Compare only the last part
+        })
+      );
+    }
+  };  
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -106,8 +122,6 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
   const totalPages = Math.ceil(folderContents.length / itemsPerPage);
 
   const paginatedFiles = folderContents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  console.log("folder contents", folderContents)
-  console.log(currentPage)
   
   const handleNextPage = () => {
     setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -194,7 +208,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
                 {item.Prefix ? (
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(removeFilepathPrefix(item.Prefix)); }} className="delete-btn">Delete</button>
                 ) : (
-                  <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFormAction} /> // Pass the folders path
+                  <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFormAction} handleFileDelete={handleFileDelete}/>
                 )}
               </li>
             ))

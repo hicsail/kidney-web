@@ -210,21 +210,20 @@ export async function uploadFileFromForm(prevState, formData) {
 }
 
 
-export async function deleteFileFromForm(prevState, formData) {
+export async function deleteFileFromForm(filename, folders) {
+  console.log("deleteFileFromForm is being called")
   const user = await getCurrentUser();
   if (!user) {
     return { success: false, message: "Please log in" };
   }
+  console.log(filename, folders)
   const userdir = user.id;
-  
-  const folders = formData.get("folders"); // Get the folders path from the form data
-  console.log("myyyyyy folders from form", folders)
-  const unprefixedFilename = removeFilepathPrefix(formData.get("filename"));
+  const unprefixedFilename = filename;
   
   // Construct the paths to the files in the different directories, including the folders path
-  const inputfilename = `${userdir}/inputs/${folders}/${unprefixedFilename}`;
-  const outmaskfilename = `${userdir}/measurementmasks/${folders}/${unprefixedFilename}`;
-  const widthjsonfilename = `${userdir}/widthinfojsons/${folders}/${changeExtension(unprefixedFilename, "json")}`;
+  const inputfilename = `${userdir}/${folders}${unprefixedFilename}`;
+  const outmaskfilename = `${userdir}/measurementmasks/${unprefixedFilename}`;
+  const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
   
   for (const k of [outmaskfilename, widthjsonfilename]) {
     try {
