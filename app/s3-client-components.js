@@ -32,9 +32,9 @@ function DeleteButton({ text, width }) {
   );
 }
 
-export function UploadFileForm({ uploadFormAction, folderContents, selectedFolder, setSelectedFolder }) {
+export function UploadFileForm({ uploadFormAction, folderContents, setFolderContents, selectedFolder, setSelectedFolder }) {
   return (
-    <form onSubmit={(e) => {
+    <form onSubmit={async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
       if (selectedFolder) {
@@ -72,9 +72,9 @@ export function UploadFileForm({ uploadFormAction, folderContents, selectedFolde
   );
 }
 
-export function DeleteFileForm({ filename, folders, deleteFormAction, setFolderContents, folderContents }) {
+export function DeleteFileForm({ filename, folders, deleteFormAction, setFolderContents, folderContents, setDeleteFolderState }) {
   filename = filename.split('/').filter(Boolean).pop(); 
-  console.log("DeleteFileForm is being called with:", folderContents);
+  //console.log('In DeleteFileForm - setDeleteFolderState:', setDeleteFolderState);
   return (
     <form
       onSubmit={async (e) => { 
@@ -93,6 +93,10 @@ export function DeleteFileForm({ filename, folders, deleteFormAction, setFolderC
               return lastPart !== filename; // Compare only the last part
             })
           );
+          setDeleteFolderState({
+            success: result.success,
+            message: result.message,
+          });
         }
       }}
     >

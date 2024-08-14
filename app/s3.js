@@ -138,7 +138,8 @@ export async function deleteFolder(folderPath) {
     return { success: false, message: "Please log in" };
   }
   const userdir = user.id;
-
+  const folderName = folderPath.split('/').filter(Boolean).pop();
+  //console.log("folder name: ", folderName)
   const folderKey = `${userdir}/${folderPath}`;
 
   try {
@@ -163,7 +164,7 @@ export async function deleteFolder(folderPath) {
     }
 
     revalidatePath("/");
-    return { success: true, message: "Folder deleted successfully" };
+    return { success: true, message: `Folder ${folderName} and its associated files are deleted successfully` };
   } catch (e) {
     console.log(e);
     return { success: false, message: "Failed to delete folder: " + e.message };
@@ -180,6 +181,7 @@ export async function uploadFileFromForm(prevState, formData) {
   const folders = formData.get("folders") || ""; // Get the folders path from the form data
   let attemptCount = 0;
   let successCount = 0;
+  let successfulUploads = [];
 
   for (const f of formData.getAll("file")) {
     try {
@@ -194,12 +196,18 @@ export async function uploadFileFromForm(prevState, formData) {
 
       await upload.done();
       successCount += 1;
+
+      console.log(folderContents)
+      successfulUploads.push({
+        Key: `${userdir}/inputs/${folders}${f.name}`
+      });
     } catch (e) {
       console.error("Failed to upload file", f.name, e);
     }
 
     attemptCount += 1;
   }
+  console.log(successfulUploads)
 
   revalidatePath("/");
 
@@ -223,10 +231,10 @@ export async function deleteFileFromForm(filename, folders) {
   // Construct the paths to the files in the different directories, including the folders path
   const inputfilename = `${userdir}/${folders}${unprefixedFilename}`;
   const outmaskfilename = `${userdir}/measurementmasks/${unprefixedFilename}`;
-  //const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
+  const widthjsonfilename = `${userdir}/widthinfojsons/${changeExtension(unprefixedFilename, "json")}`;
   
-  //for (const k of [outmaskfilename, widthjsonfilename]) {
-  for (const k of [outmaskfilename]) {
+  for (const k of [outmaskfilename, widthjsonfilename]) {
+  //for (const k of [outmaskfilename]) {
     try {
       await client.send(
         new DeleteObjectCommand({
@@ -255,10 +263,10 @@ export async function deleteFileFromForm(filename, folders) {
     return { success: false, message: "Failed to delete file: " + e };
   }
 
-  revalidatePath("/");
+  //revalidatePath("/");
 
   return {
     success: true,
-    message: `Successfully deleted ${unprefixedFilename} and its associated output files.`,
+    message: `Successfully deleted ${unprefixedFilename}.`,
   };
 }

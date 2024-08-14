@@ -20,6 +20,11 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     success: null,
     message: null,
   });
+  const [deleteFolderState, setDeleteFolderState] = useState({
+    success: null,
+    message: null,
+  });
+  
   const [selectedFolder, setSelectedFolder] = useState(""); // New state for the selected folder
 
   useEffect(() => {
@@ -80,6 +85,10 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
 
   const handleDeleteFolder = async (folderName) => {
     const result = await deleteFolder(`inputs/${folderName}/`); // Delete folder
+    setDeleteFolderState({
+      success: result.success,
+      message: result.message,
+    });
     console.log(result)
     if (result.success) {
       setFolderContents(
@@ -89,13 +98,13 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
           }
           const prefixParts = item.Prefix.split('/').filter(Boolean); // Split and filter out empty strings
           const lastPart = prefixParts[prefixParts.length - 1]; // Get the ast part which corresponds to the folder name
-          console.log(item, lastPart)
+          //console.log(item, lastPart)
           return lastPart !== folderName; // Compare only the last part
         })
       );
       
     }
-    console.log(folderContents)
+    //console.log(folderContents)
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -122,7 +131,12 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
       formData.set("folder", selectedFolder);
     }
     await uploadFormAction(formData);
+    // if (result.successfulUploads.length > 0) {
+    //   setFolderContents([...folderContents, ...successfulUploads]);
+    // }
   };
+
+  //console.log('In ParentComponent - setDeleteFolderState:', setDeleteFolderState);
 
   return (
     <div className="h-full max-w-md">
@@ -130,6 +144,7 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
         <UploadFileForm
           uploadFormAction={handleUpload}
           folderContents={folderContents}
+          setFolderContents={setFolderContents} 
           selectedFolder={selectedFolder}
           setSelectedFolder={setSelectedFolder}
         />
@@ -141,6 +156,11 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
       </div>
       <div className="flex flex-col space-y-4 bg-white p-4 rounded-lg shadow-md mt-6 mb-6">
         <h1 className="text-lg font-semibold">Select a File or Folder</h1>
+        <div className="">
+          <p className="text-sm text-gray-500 delete-message">
+            Select a file to run a segmentation prediction, classification, or generate a report. You can only select one file at a time.
+          </p>
+        </div>
         <div className="flex flex-row space-x-2">
           <input
             type="text"
@@ -190,7 +210,13 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
                 {item.Prefix ? (
                   <button onClick={(e) => { e.stopPropagation(); handleDeleteFolder(removeFilepathPrefix(item.Prefix)); }} className="delete-btn">Delete</button>
                 ) : (
-                  <DeleteFileForm filename={item.Key} folders={currentPath} deleteFormAction={deleteFileFromForm} setFolderContents={setFolderContents} folderContents={folderContents}/>
+                  <DeleteFileForm 
+                  filename={item.Key} 
+                  folders={currentPath} 
+                  deleteFormAction={deleteFileFromForm} 
+                  setFolderContents={setFolderContents} 
+                  folderContents={folderContents} 
+                  setDeleteFolderState={setDeleteFolderState}/>
                 )}
               </li>
             ))
@@ -207,6 +233,13 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
           <div>
             <p className={deleteFormState.success ? "text-green-600" : "text-red-600"}>
               {deleteFormState.message}
+            </p>
+          </div>
+        )}
+        {deleteFolderState.message && (
+          <div>
+            <p className={deleteFolderState.success ? "text-green-600" : "text-red-600"}>
+              {deleteFolderState.message}
             </p>
           </div>
         )}
