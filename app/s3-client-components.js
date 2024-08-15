@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
+import { useFormStatus, useState } from "react-dom";
 import { removeFilepathPrefix, removeUserId } from "@/app/utils.js"; // Ensure this import is present
 import '@/app/style.css';
 
@@ -32,20 +32,25 @@ function DeleteButton({ text, width }) {
   );
 }
 
-export function UploadFileForm({ uploadFormAction, folderContents, setFolderContents, selectedFolder, setSelectedFolder }) {
+export function UploadFileForm({ uploadFormAction, folderContents, setFolderContents, selectedFolder, setSelectedFolder, setuploadFolderState, uploadFolderState }) {
   return (
     <form onSubmit={async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      if (selectedFolder) {
-        formData.append("folders", selectedFolder); // Append folders to form data
+      if (!selectedFolder){  
+        setuploadFolderState({
+          message: "Please select a folder to upload to.",
+        });
       }
-      uploadFormAction(formData);
+      else if (selectedFolder) {
+        formData.append("folders", selectedFolder); // Append folders to form data
+        uploadFormAction(formData);
+      }
     }}>
       <label htmlFor="file" className="text-lg font-semibold">
         Upload files
       </label>
-      <p className="text-sm text-gray-500 mt-1 pt-[0.5vh]">Upload one or more files.</p>
+      <p className="text-sm text-gray-500 mt-1 pt-[0.5vh]">Upload one or more files to a folder inside your current folder.</p>
       <div className="mt-2 pt-[1.5vh] pl-[0.7vw]">
         <input type="file" id="file" name="file" multiple required />
       </div>
@@ -54,10 +59,13 @@ export function UploadFileForm({ uploadFormAction, folderContents, setFolderCont
         <select
           id="folder-select"
           value={selectedFolder}
-          onChange={(e) => setSelectedFolder(e.target.value)}
+          onChange={(e) => {
+            setSelectedFolder(e.target.value);
+            setuploadFolderState({ message: null }); // Clear the message when a folder is selected
+          }}
           className="flex-1 px-2 py-1 rounded border border-gray-300"
         >
-          <option value="">Root</option>
+          <option value="">No Folder Selected</option>
           {folderContents
             .filter(item => item.Prefix && item.Prefix.endsWith("/"))
             .map((item, index) => (
@@ -65,8 +73,11 @@ export function UploadFileForm({ uploadFormAction, folderContents, setFolderCont
             ))}
         </select>
       </div>
+      {uploadFolderState.message && (
+        <p className="text-red-500 mt-2">{uploadFolderState.message}</p>
+      )}
       <div className="mt-2 pt-[1.6vh]">
-        <SubmitButton text="Upload" width="100%" />
+        <SubmitButton text="Upload" width="100%"/>
       </div>
     </form>
   );

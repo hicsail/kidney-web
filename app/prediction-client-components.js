@@ -24,6 +24,9 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
     success: null,
     message: null,
   });
+  const [uploadFolderState, setuploadFolderState] = useState({
+    message: null,
+  });
   
   const [selectedFolder, setSelectedFolder] = useState(""); // New state for the selected folder
 
@@ -147,6 +150,8 @@ function UserFiles({ currSelectedFile, setCurrSelectedFile }) {
           setFolderContents={setFolderContents} 
           selectedFolder={selectedFolder}
           setSelectedFolder={setSelectedFolder}
+          setuploadFolderState={setuploadFolderState}
+          uploadFolderState={uploadFolderState}
         />
         {uploadFormState.message && (
           <p className={uploadFormState.success ? "text-green-600" : "text-red-600"}>
