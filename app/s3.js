@@ -125,7 +125,7 @@ export async function createFolder(folderPath) {
       })
     );
     revalidatePath("/");
-    return { success: true, message: "Folder created successfully" };
+    return { success: true, message: "Folder created successfully." };
   } catch (e) {
     console.log(e);
     return { success: false, message: "Failed to create folder: " + e.message };
@@ -135,7 +135,7 @@ export async function createFolder(folderPath) {
 export async function deleteFolder(folderPath) {
   const user = await getCurrentUser();
   if (!user) {
-    return { success: false, message: "Please log in" };
+    return { success: false, message: "Please log in." };
   }
   const userdir = user.id;
   const folderName = folderPath.split('/').filter(Boolean).pop();
@@ -164,7 +164,7 @@ export async function deleteFolder(folderPath) {
     }
 
     revalidatePath("/");
-    return { success: true, message: `Folder ${folderName} and its associated files are deleted successfully` };
+    return { success: true, message: `Folder ${folderName} and its associated files are deleted successfully.` };
   } catch (e) {
     console.log(e);
     return { success: false, message: "Failed to delete folder: " + e.message };
@@ -174,7 +174,7 @@ export async function deleteFolder(folderPath) {
 export async function uploadFileFromForm(prevState, formData) {
   const user = await getCurrentUser();
   if (!user) {
-    return { success: false, message: "Please log in" };
+    return { success: false, message: "Please log in." };
   }
   const userdir = user.id;
 
@@ -189,7 +189,7 @@ export async function uploadFileFromForm(prevState, formData) {
         client,
         params: {
           Bucket: process.env.S3_BUCKET_NAME,
-          Key: `${userdir}/inputs/${folders}${f.name}`,
+          Key: `${userdir}${folders}${f.name}`,
           Body: f.stream(),
         },
       });
@@ -199,7 +199,7 @@ export async function uploadFileFromForm(prevState, formData) {
 
       console.log(folderContents)
       successfulUploads.push({
-        Key: `${userdir}/inputs/${folders}${f.name}`
+        Key: `${userdir}${folders}${f.name}`
       });
     } catch (e) {
       console.error("Failed to upload file", f.name, e);
@@ -222,7 +222,7 @@ export async function deleteFileFromForm(filename, folders) {
   console.log("deleteFileFromForm is being called", filename, folders)
   const user = await getCurrentUser();
   if (!user) {
-    return { success: false, message: "Please log in" };
+    return { success: false, message: "Please log in." };
   }
   console.log(filename, folders)
   const userdir = user.id;

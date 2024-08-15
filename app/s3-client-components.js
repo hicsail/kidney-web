@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { removeFilepathPrefix } from "@/app/utils.js"; // Ensure this import is present
+import { removeFilepathPrefix, removeUserId } from "@/app/utils.js"; // Ensure this import is present
 import '@/app/style.css';
 
 function SubmitButton({ text, width }) {
@@ -61,7 +61,7 @@ export function UploadFileForm({ uploadFormAction, folderContents, setFolderCont
           {folderContents
             .filter(item => item.Prefix && item.Prefix.endsWith("/"))
             .map((item, index) => (
-              <option key={index} value={removeFilepathPrefix(item.Prefix)+'/'}>{removeFilepathPrefix(item.Prefix)}</option>
+              <option key={index} value={removeUserId(item.Prefix)}>{removeFilepathPrefix(item.Prefix)}</option>
             ))}
         </select>
       </div>

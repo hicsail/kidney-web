@@ -16,3 +16,14 @@ export function changeExtension(filename, ext) {
   }
   return filename.split(".").slice(0, -1).join(".") + "." + ext;
 }
+
+export function removeUserId(filepath) {
+  if (!filepath) {
+    return "";
+  }
+  const parts = filepath.split("/").filter(Boolean);
+  if (parts.length > 1) {
+    return `/${parts.slice(1).join("/")}/`;
+  }
+  return "/";
+}
