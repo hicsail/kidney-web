@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import '@/app/style.css';
 
 function SubmitButton({ text, width }) {
   const { pending } = useFormStatus();

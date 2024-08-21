@@ -6,8 +6,6 @@ import { runGBMPrediction } from "@/app/predict.js";
 import { UploadFileForm, DeleteFileForm } from "@/app/s3-client-components.js";
 import { uploadFileFromForm, deleteFileFromForm } from "@/app/s3.js";
 import { removeFilepathPrefix, changeExtension } from "@/app/utils.js";
-import { useForm, Controller } from 'react-hook-form';
-import '@/app/style.css';
 
 function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
   const [uploadFormState, uploadFormAction] = useFormState(uploadFileFromForm, {
@@ -67,7 +65,7 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
               paginatedFiles.map((file) => (
                 <li
                   key={file["Key"]}
-                  onClick={() => setCurrSelectedFile(file["Key"])}
+                  onClick={() => setCurrSelectedFile(file["Key"])}    // currently selected file is a single filename, and deliberately not a list;
                   className={
                     "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-100" +
                     (file["Key"] === currSelectedFile ? " bg-gray-100" : "")
