@@ -1,6 +1,8 @@
 
 "use client";
 
+import { useState } from 'react';
+
 const Navbar = ({ user }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
