@@ -65,7 +65,11 @@ function UserFiles({ files, currSelectedFile, setCurrSelectedFile }) {
               paginatedFiles.map((file) => (
                 <li
                   key={file["Key"]}
-                  onClick={() => setCurrSelectedFile(file["Key"])}    // currently selected file is a single filename, and deliberately not a list;
+                  onClick={() => setCurrSelectedFile(file["Key"])}    
+                  // currently selected file is a single filename, and deliberately not a list;
+                  // this is because the client has explicitly said to only allow prediction
+                  // on one image at a time for now, due to uncertainties about how much time/
+                  // computation each prediction will take.
                   className={
                     "flex flex-row py-1 px-1 items-center justify-between hover:bg-gray-100" +
                     (file["Key"] === currSelectedFile ? " bg-gray-100" : "")

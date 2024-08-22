@@ -1,4 +1,3 @@
-// src/app/page.js or src/pages/index.js
 
 import Image from 'next/image';
 import { getCurrentUser } from '@/app/actions';
@@ -16,7 +15,7 @@ function Greeting() {
             "/?projectId=" +
             process.env.AUTH_PROJECTID
           }
-          className="pt-10"
+          className="pt-10" 
         >
           <button className="btn px-4 py-1 rounded-full border border-black hover:text-white hover:bg-black">
             Log in with SAIL test auth

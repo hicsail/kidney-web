@@ -1,8 +1,5 @@
-// src/components/Navbar.js
 
 "use client";
-
-import React, { useState } from 'react';
 
 const Navbar = ({ user }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
