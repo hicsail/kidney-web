@@ -6,8 +6,7 @@ import { ListUserDirContents } from '@/app/s3';
 import { GBMMeasurementInterface } from '@/app/prediction-client-components';
 import Navbar from '@/app/navbar';
 
-function Greeting({ user }) { 
-  if (!user) {
+function Greeting() {
     return (
       <div className="flex flex-col items-center justify-between space-x-5 pt-40">
         <h1 className="text-2xl font-bold pb-10 ">Hello, kidney researcher.</h1>
@@ -25,7 +24,6 @@ function Greeting({ user }) {
         </a>
       </div>
     );
-  }
 }
 
 export default async function Home() {
@@ -36,7 +34,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col px-[1vw]">
       <Navbar user={user} />
       <div className="pt-[10vh] pb-[3vh]" >
-        <Greeting user={user} />
+        { !user && <Greeting /> }
         <GBMMeasurementInterface user={user} files={files} />
       </div>
     </main>
