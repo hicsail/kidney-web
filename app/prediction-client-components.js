@@ -174,37 +174,44 @@ function RunPredictionTab({ currSelectedFile }) {
     srcfile: null,
   });
 
-  function RunPredictForm() {
-    function PredictionStatusReport() {
-      if (!predictionStatus.status) {
-        return null;
-      } else if (predictionStatus.status == 200) {
-        return (
-          <p>
-            {predictionStatus.srcfile &&
-              removeFilepathPrefix(predictionStatus.srcfile) + ": "}
-            <span className="text-green-600">{predictionStatus.message}</span>
-          </p>
-        );
-      } else if (predictionStatus.status == 400) {
-        return (
-          <p>
-            {predictionStatus.srcfile &&
-              removeFilepathPrefix(predictionStatus.srcfile) + ": "}
-            <span className="text-fuchsia-600">{predictionStatus.message}</span>
-          </p>
-        );
-      } else {
-        return (
-          <p>
-            {predictionStatus.srcfile &&
-              removeFilepathPrefix(predictionStatus.srcfile) + ": "}
-            <span className="text-red-600">{predictionStatus.message}</span>
-          </p>
-        );
-      }
-    }
 
+  function PredictionStatusReport() {
+    // Reset status report once user clicks away from file
+    useEffect(() => {
+      predictionStatus.status = null;
+    }, [currSelectedFile]);
+
+    if (!predictionStatus.status) {
+      return null;
+    } else if (predictionStatus.status == 200) {
+      return (
+        <p>
+          {predictionStatus.srcfile &&
+            removeFilepathPrefix(predictionStatus.srcfile) + ": "}
+          <span className="text-green-600">{predictionStatus.message}</span>
+        </p>
+      );
+    } else if (predictionStatus.status == 400) {
+      return (
+        <p>
+          {predictionStatus.srcfile &&
+            removeFilepathPrefix(predictionStatus.srcfile) + ": "}
+          <span className="text-fuchsia-600">{predictionStatus.message}</span>
+        </p>
+      );
+    } else {
+      return (
+        <p>
+          {predictionStatus.srcfile &&
+            removeFilepathPrefix(predictionStatus.srcfile) + ": "}
+          <span className="text-red-600">{predictionStatus.message}</span>
+        </p>
+      );
+    }
+  }
+
+
+  function RunPredictForm() {
     return (
       <form action={formAction}>
         <h1 className="text-lg font-semibold">Selected File:</h1>
@@ -339,6 +346,7 @@ function RunPredictionTab({ currSelectedFile }) {
 
         return (
           <div className="flex flex-col gap-y-2">
+            <PredictionStatusReport />
             <div className="items-start">
               <div className="flex flex-row space-x-4">
                 <div className="w-1/2 bg-white p-4 rounded-lg shadow-md">
