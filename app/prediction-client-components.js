@@ -176,12 +176,7 @@ function RunPredictionTab({ currSelectedFile }) {
 
 
   function PredictionStatusReport() {
-    // Reset status report once user clicks away from file
-    useEffect(() => {
-      predictionStatus.status = null;
-    }, [currSelectedFile]);
-
-    if (!predictionStatus.status) {
+    if (!predictionStatus.status || (predictionStatus.srcfile && predictionStatus.srcfile != currSelectedFile)) {
       return null;
     } else if (predictionStatus.status == 200) {
       return (
